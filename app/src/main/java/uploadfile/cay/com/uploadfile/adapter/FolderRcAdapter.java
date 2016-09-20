@@ -45,7 +45,7 @@ public class FolderRcAdapter extends RecyclerView.Adapter<FolderRcAdapter.ViewHo
             holder.timeTextView.setText(times.get(position));
         } else {
             holder.nameTextView.setText(names.get(position));
-            Glide.with(context).load("http://118.192.157.178:8080/XiaoWei/servlet/DownloadFile?filename=chenwei\\\\" + names.get(position)).into(holder.mImageView);
+            Glide.with(context).load("http://118.192.157.178:8080/XiaoWei/servlet/DownloadFile?filename=chenwei\\" + names.get(position)).into(holder.mImageView);
             holder.timeTextView.setText(times.get(position));
         }
       //  holder.timeTextView.setText(times[position]);
