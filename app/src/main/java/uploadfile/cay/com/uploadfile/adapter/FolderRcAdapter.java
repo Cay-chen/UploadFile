@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+
 import uploadfile.cay.com.uploadfile.R;
 
 /**
@@ -15,15 +19,17 @@ import uploadfile.cay.com.uploadfile.R;
  */
 public class FolderRcAdapter extends RecyclerView.Adapter<FolderRcAdapter.ViewHolder> {
     private int[] folders;
-    private String[] times;
+    private List<String>  times;
     private Context context;
-    private String[] names;
+    private List<String> names;
+    private int num;
 
-    public FolderRcAdapter(int[] folders, String[] times, Context context, String[] names) {
+    public FolderRcAdapter(int[] folders, List<String>  times, Context context, List<String> names, int num) {
         this.folders = folders;
         this.times = times;
         this.context = context;
         this.names = names;
+        this.num = num;
     }
 
     @Override
@@ -33,15 +39,23 @@ public class FolderRcAdapter extends RecyclerView.Adapter<FolderRcAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.timeTextView.setText(times[position]);
-        holder.nameTextView.setText(names[position]);
-        holder.mImageView.setImageResource(folders[position]);
+        if (position < num) {
+            holder.nameTextView.setText(names.get(position));
+            holder.mImageView.setImageResource(R.mipmap.icon_list_folder);
+            holder.timeTextView.setText(times.get(position));
+        } else {
+            holder.nameTextView.setText(names.get(position));
+            Glide.with(context).load("http://118.192.157.178:8080/XiaoWei/servlet/DownloadFile?filename=chenwei\\\\" + names.get(position)).into(holder.mImageView);
+            holder.timeTextView.setText(times.get(position));
+        }
+      //  holder.timeTextView.setText(times[position]);
+       // holder.mImageView.setImageResource(folders[position]);
 
     }
 
     @Override
     public int getItemCount() {
-        return folders.length;
+        return names.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
