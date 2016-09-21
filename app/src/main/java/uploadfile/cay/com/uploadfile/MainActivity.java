@@ -1,5 +1,6 @@
 package uploadfile.cay.com.uploadfile;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,19 +35,21 @@ import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
 import uploadfile.cay.com.uploadfile.adapter.MainAdapter;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String name = "ChenWei";
+    public static final String name = "ChenWei"; //登录用户名
     private static final String TAG = "AAA";
-    public static int folderNum = 0;
-    private List<String> selectImagesPath;
-    private List<MainBean> datas = new ArrayList<>();
-    private RecyclerView mRecyclerView;
-    private MainAdapter mainAdapter;
-    private String createFolderName;
-    private LinearLayout createFolderButton;
-    private LinearLayout uploadFileButton;
-    public static List<String> pathList = new ArrayList<>();
-    private static Boolean isExit = false;
-    private String imageName;
+    public static int folderNum = 0; //目录线面的文件个数
+    private List<String> selectImagesPath;  //上传所选图片的路径集合
+    private List<MainBean> datas = new ArrayList<>();//Adapter 数据集合
+    private RecyclerView mRecyclerView;     //显示的RecyclerView
+    private MainAdapter mainAdapter; //显示列表的Adapter
+    private String createFolderName;//获取创建新文件夹的名称
+    private int uploadFileProgress = 0;//统计上传完成的文件个数
+    private LinearLayout createFolderButton;//创建文件夹按钮
+    private LinearLayout uploadFileButton;//上传文件按钮
+    public static List<String> pathList = new ArrayList<>();//re显示的路径集合（显示那个文件夹内容的集合）
+    private static Boolean isExit = false;//判断双击退出系统
+    private String imageName; //根据路径截取出来的图片名称
+    private ProgressDialog mProgress;//Dialog 进度条
 
 
     @Override
@@ -60,10 +63,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-
         showRecyclerView();
-
-
         createFolderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
+       });
         builder.show();
 
     }
@@ -202,10 +202,9 @@ public class MainActivity extends AppCompatActivity {
     /**
      * RecyclerView 显示的内容和数据
      *
-     * @param
      */
     private void showRecyclerView() {
-        Log.i(TAG, "最后路径: "+pathList.get(pathList.size() - 1));
+        Log.i(TAG, "最后路径: " + pathList.get(pathList.size() - 1));
         datas.clear();
         OkHttpUtils.get().url(AllDatas.SHOW_FILES_URL + pathList.get(pathList.size() - 1)).build().execute(new StringCallback() {
             @Override
@@ -279,27 +278,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 上传文件
+     */
     private void uploadFile() {
 
+        progressDialog(selectImagesPath.size());
         for (int i = 0; i < selectImagesPath.size(); i++) {
             String[] names = selectImagesPath.get(i).split("\\/"); //按照/ 截取数组
-             imageName = names[(names.length) - 1];//取出文件名
+            imageName = names[(names.length) - 1];//取出文件名
 
-           String uploadFilePath = pathList.get(pathList.size()-1);
+            String uploadFilePath = pathList.get(pathList.size() - 1);
 
             File file = new File(selectImagesPath.get(i));
-           // Log.i(TAG, "onClick: " + names.get(i));
+            // Log.i(TAG, "onClick: " + names.get(i));
             Log.i(TAG, "大小: " + file.length());
             OkHttpUtils.post().addFile(uploadFilePath, imageName, file).url(AllDatas.UPLOAD_FILES_URL).build().execute(new StringCallback() {
                 @Override
                 public void onError(Call call, Exception e, int id) {
+                    uploadFileProgress++;
                     Log.i(TAG, "onError: ");
+                    mProgress.setProgress(uploadFileProgress);
 
                 }
 
                 @Override
                 public void onResponse(String response, int id) {
-                    Log.i(TAG, "成功上传"+imageName);
+                    uploadFileProgress++;
+                    mProgress.setProgress(uploadFileProgress);
+                    if (uploadFileProgress == selectImagesPath.size()){
+                        mProgress.dismiss();
+                    }
+                        Log.i(TAG, "成功上传" + imageName);
                 }
             });
 
@@ -313,9 +323,9 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // 获取返回的图片列表
                 selectImagesPath = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
-                AlertDialog.Builder builder=new AlertDialog.Builder(this);  //先得到构造器
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("是否上传"); //设置标题
-                builder.setMessage("你选择了"+selectImagesPath.size()+"张照片"); //设置内容
+                builder.setMessage("你选择了" + selectImagesPath.size() + "张照片"); //设置内容
                 builder.setIcon(R.mipmap.ic_launcher);//设置图标，图片id即可
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() { //设置确定按钮
                     @Override
@@ -340,4 +350,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * 进度条Dialog
+     */
+    private void progressDialog(int maxNum) {
+        mProgress = new ProgressDialog(this);
+        mProgress.setMax(maxNum);
+        mProgress.setIcon(R.mipmap.ic_launcher);
+        mProgress.setTitle("正在上传中");
+        mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgress.setButton("确定", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                Toast.makeText(MainActivity.this, "确定", Toast.LENGTH_SHORT).show();
+            }
+        });
+        mProgress.setButton2("取消", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                Toast.makeText(MainActivity.this, "取消", Toast.LENGTH_SHORT).show();
+            }
+        });
+        mProgress.show();
+    }
+
 }
