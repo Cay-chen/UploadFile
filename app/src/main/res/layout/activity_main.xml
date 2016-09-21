@@ -26,6 +26,7 @@
         android:background="#425FF7">
 
         <LinearLayout
+            android:id="@+id/create_folder_ll"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
@@ -48,6 +49,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/upload_file_ll"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"

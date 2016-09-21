@@ -12,12 +12,15 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import uploadfile.cay.com.uploadfile.AllDatas;
+import uploadfile.cay.com.uploadfile.MainActivity;
 import uploadfile.cay.com.uploadfile.R;
 
 /**
  * Created by C on 2016/9/20.
  */
 public class FolderRcAdapter extends RecyclerView.Adapter<FolderRcAdapter.ViewHolder> {
+    private List<String> path;
     private int[] folders;
     private List<String>  times;
     private Context context;
@@ -45,7 +48,7 @@ public class FolderRcAdapter extends RecyclerView.Adapter<FolderRcAdapter.ViewHo
             holder.timeTextView.setText(times.get(position));
         } else {
             holder.nameTextView.setText(names.get(position));
-            Glide.with(context).load("http://118.192.157.178:8080/XiaoWei/servlet/DownloadFile?filename=chenwei\\" + names.get(position)).into(holder.mImageView);
+            Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL+ MainActivity.name +"&imagename="+ names.get(position)+"&check=2").into(holder.mImageView);
             holder.timeTextView.setText(times.get(position));
         }
       //  holder.timeTextView.setText(times[position]);
