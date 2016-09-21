@@ -40,7 +40,7 @@ public class MainAdapter extends BaseQuickAdapter<MainBean> {
         if (mainBean.getNum() < MainActivity.folderNum) {
             baseViewHolder.setImageResource(R.id.folder_image, R.mipmap.icon_list_folder);
         } else {
-            Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL + MainActivity.name + "&imagename=" + mainBean.getImageName() + "&check=2").into((ImageView) baseViewHolder.getView(R.id.folder_image));
+            Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + mainBean.getImageName() + "&check=2").into((ImageView) baseViewHolder.getView(R.id.folder_image));
         }
 
        /* baseViewHolder.setOnClickListener(R.id.folder_image, new OnItemChildClickListener())

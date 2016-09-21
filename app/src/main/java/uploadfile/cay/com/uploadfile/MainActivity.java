@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private String createFolderName;
     private LinearLayout createFolderButton;
     private LinearLayout uploadFileButton;
-    private List<String> pathList = new ArrayList<>();
+    public static List<String> pathList = new ArrayList<>();
     private static Boolean isExit = false;
     private String imageName;
 
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                //  FolderRcAdapter folderRcAdapter = new FolderRcAdapter(folders, time, MainActivity.this, text,showFileBean.folders.length);
 
                 onCk();
 
@@ -234,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                //  FolderRcAdapter folderRcAdapter = new FolderRcAdapter(folders, time, MainActivity.this, text,showFileBean.folders.length);
 
                 onCk();
 
