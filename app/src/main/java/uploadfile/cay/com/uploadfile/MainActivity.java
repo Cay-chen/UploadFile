@@ -35,7 +35,7 @@ import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
 import uploadfile.cay.com.uploadfile.adapter.MainAdapter;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String name = "ChenWei"; //登录用户名
+
     private static final String TAG = "AAA";
     public static int folderNum = 0; //目录线面的文件个数
     private List<String> selectImagesPath;  //上传所选图片的路径集合
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        pathList.add(name);
+        pathList.add(MyApplication.name);
         uploadFileButton = (LinearLayout) findViewById(R.id.upload_file_ll);
         createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);

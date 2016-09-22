@@ -1,5 +1,6 @@
 package uploadfile.cay.com.uploadfile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -270,11 +272,35 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onResponse(String response, int id) {
                 UserBean userBean = JSON.parseObject(response, UserBean.class);
-                //TODO  写登录逻辑
-                Log.i(TAG, "userBean: resCode"+userBean.resCode);
-                Log.i(TAG, "userBean: resHeadUrl"+userBean.resHeadUrl);
-                Log.i(TAG, "userBean: resMsg"+userBean.resMsg);
-                Log.i(TAG, "userBean: resNikeName"+userBean.resNikeName);
+                switch (userBean.resCode) {
+                    case "20001":
+                        MyApplication.name=userBean.resNikeName;
+                        MyApplication.url=userBean.resHeadUrl;
+                        Intent intent = new Intent(Login.this, MainActivity.class);
+                        startActivity(intent);
+                        Login.this.finish();
+                        Log.i(TAG, "userBean: resCode"+userBean.resCode);
+                        Log.i(TAG, "userBean: resHeadUrl"+userBean.resHeadUrl);
+                        Log.i(TAG, "userBean: resMsg"+userBean.resMsg);
+                        Log.i(TAG, "userBean: resNikeName"+userBean.resNikeName);
+                        Log.i(TAG, "MainActivity.name"+MyApplication.name);
+
+                        // Intent
+                        break;
+                    case "20002":
+                        Toast.makeText(Login.this, "密码错误", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "20003":
+                        Toast.makeText(Login.this, "无此账号", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "20004":
+                        Toast.makeText(Login.this, "账号为空", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(Login.this, "系统错误", Toast.LENGTH_SHORT).show();
+
+                }
+
             }
         });
         }
