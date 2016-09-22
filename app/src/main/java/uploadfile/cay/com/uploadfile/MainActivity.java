@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         uploadFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                uploadFileProgress = 0;
                 MultiImageSelector.create(MainActivity.this).showCamera(true).count(AllDatas.UPLOAD_FILE_MAXNUM).multi().start(MainActivity.this, AllDatas.SELECT_IMAGE_ACTIVITY_CODE);
 
             }
@@ -132,10 +133,12 @@ public class MainActivity extends AppCompatActivity {
                     pathList.add(nextPath);
                     showRecyclerView();
                 } else {
-                    Toast.makeText(MainActivity.this, "ID:" + view.getId() + "  名字:" + datas.get(i).getImageName(), Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
+                    intent.putExtra(AllDatas.INTENT_CODE,AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + datas.get(i).getImageName() + "&check=1");
+                    startActivity(intent);
+                   // Toast.makeText(MainActivity.this, "ID:" + view.getId() + "  名字:" + datas.get(i).getImageName(), Toast.LENGTH_LONG).show();
 
                 }
-                //Toast.makeText(MainActivity.this,"ID:"+view.getId()+"  名字:"+datas.get(i).getImageName(),Toast.LENGTH_LONG).show();
             }
         });
 
@@ -306,8 +309,12 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(String response, int id) {
                     uploadFileProgress++;
                     mProgress.setProgress(uploadFileProgress);
+                    Log.i(TAG, "uploadFileProgress: "+uploadFileProgress);
+                    Log.i(TAG, "selectImagesPath.size(): "+selectImagesPath.size());
+
                     if (uploadFileProgress == selectImagesPath.size()){
                         mProgress.dismiss();
+                        showRecyclerView();
                     }
                         Log.i(TAG, "成功上传" + imageName);
                 }
