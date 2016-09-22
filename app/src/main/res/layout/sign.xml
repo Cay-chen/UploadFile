@@ -5,10 +5,11 @@
     android:background="#E0E0E0">
 
     <LinearLayout
-        android:visibility="gone"
+        android:id="@+id/login_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="visible">
 
 
         <LinearLayout
@@ -41,9 +42,12 @@
                 android:textSize="20sp" />
 
             <EditText
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^*_.`"
+                android:id="@+id/login_username_et"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
+                android:lines="1"
                 android:background="@null"
                 android:gravity="center_vertical"
                 android:hint="邮箱账号"
@@ -68,18 +72,23 @@
                 android:textSize="18sp" />
 
             <EditText
+                android:id="@+id/login_password_et"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:background="@null"
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^*_.`"
                 android:gravity="center_vertical"
                 android:hint="请输入密码"
+                android:lines="1"
                 android:inputType="textPassword"
+                android:maxLength="25"
                 android:textSize="20sp" />
 
         </LinearLayout>
 
         <Button
+            android:id="@+id/login_btn"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginLeft="13dp"
@@ -108,6 +117,7 @@
         </RelativeLayout>
 
         <Button
+            android:id="@+id/login_sing_up_btn"
             android:layout_width="100dp"
             android:layout_height="45dp"
             android:layout_gravity="center_horizontal"
@@ -117,12 +127,14 @@
             android:textColor="#EF7C01"
             android:textSize="16sp" />
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/sign_up_ll"
-        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -135,6 +147,7 @@
                 android:text="账号注册"
                 android:textSize="26sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -152,18 +165,19 @@
                 android:textSize="20sp" />
 
             <EditText
-                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@_-.$"
                 android:id="@+id/sing_up_mail_et"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:background="@null"
+                android:lines="1"
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@_-.$"
                 android:gravity="center_vertical"
                 android:hint="邮箱账号"
-                android:textSize="18sp"
-               />
+                android:textSize="18sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -214,12 +228,16 @@
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:background="@null"
+                android:lines="1"
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^*_.`"
                 android:gravity="center_vertical"
                 android:hint="请输入密码"
                 android:inputType="textPassword"
+                android:maxLength="25"
                 android:textSize="20sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -241,10 +259,13 @@
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
+                android:lines="1"
                 android:background="@null"
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^*_.`"
                 android:gravity="center_vertical"
                 android:hint="请再次输入密码"
                 android:inputType="textPassword"
+                android:maxLength="25"
                 android:textSize="20sp" />
 
         </LinearLayout>
@@ -261,24 +282,27 @@
             android:text="下一步"
             android:textColor="#ffffff"
             android:textSize="20sp" />
+
         <Button
             android:id="@+id/sing_up_backLogin_btn"
-            android:layout_marginTop="25dp"
             android:layout_width="100dp"
             android:layout_height="45dp"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="25dp"
             android:background="@drawable/sign_up_edittext"
             android:gravity="center"
             android:text="已有账号"
             android:textColor="#EF7C01"
             android:textSize="16sp" />
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/code_ll"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -291,34 +315,37 @@
                 android:text="账号注册"
                 android:textSize="26sp" />
         </LinearLayout>
+
         <LinearLayout
 
             android:layout_width="match_parent"
             android:layout_height="110dp"
             android:layout_marginTop="15dp"
-            android:orientation="vertical"
-            android:background="#F2F2F2">
+            android:background="#F2F2F2"
+            android:orientation="vertical">
 
             <TextView
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_marginLeft="15dp"
                 android:layout_weight="0.4"
+                android:gravity="center"
                 android:text="我们已经发送了验证码到你的邮箱："
                 android:textColor="#000000"
                 android:textSize="16sp" />
+
             <TextView
                 android:id="@+id/code_mail_tv"
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_marginLeft="15dp"
                 android:layout_weight="0.4"
+                android:gravity="center"
                 android:text="276495166@qq.com"
                 android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -341,13 +368,14 @@
                 android:layout_height="55dp"
                 android:layout_weight="1"
                 android:background="@null"
-                android:inputType="number"
-                android:maxLength="6"
                 android:gravity="center_vertical"
                 android:hint="请输入验证码"
+                android:inputType="number"
+                android:maxLength="6"
                 android:textSize="18sp" />
 
         </LinearLayout>
+
         <Button
             android:id="@+id/code_next_btn"
             android:layout_width="match_parent"
@@ -361,11 +389,14 @@
             android:textColor="#ffffff"
             android:textSize="20sp" />
     </LinearLayout>
+
     <LinearLayout
-        android:visibility="gone"
+        android:id="@+id/success_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -378,26 +409,29 @@
                 android:text="账号注册"
                 android:textSize="26sp" />
         </LinearLayout>
+
         <LinearLayout
 
             android:layout_width="match_parent"
             android:layout_height="110dp"
             android:layout_marginTop="15dp"
-            android:orientation="vertical"
-            android:background="#F2F2F2">
+            android:background="#F2F2F2"
+            android:orientation="vertical">
 
             <TextView
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_marginLeft="15dp"
                 android:layout_weight="0.4"
+                android:gravity="center"
                 android:text="注册成功"
                 android:textColor="#000000"
                 android:textSize="24sp" />
 
         </LinearLayout>
+
         <Button
+            android:id="@+id/success_back_login_btn"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginLeft="13dp"

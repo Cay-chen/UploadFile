@@ -13,5 +13,6 @@ public class AllDatas {
     public static final String INTENT_CODE = "IMAGE_URL";
     public static final String SEND_CODE_URL = "http://118.192.157.178:8080/XiaoWei/servlet/YunSendCode";//发送验证码地址
     public static final String SING_UP_URL = "http://118.192.157.178:8080/XiaoWei/servlet/YunSingUp";//注册地址
+    public static final String LOGIN_URL = "http://118.192.157.178:8080/XiaoWei/servlet/YunLogin";//注册地址
 
 }
