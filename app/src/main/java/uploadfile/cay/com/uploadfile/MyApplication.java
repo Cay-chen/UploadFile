@@ -11,6 +11,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 public class MyApplication extends Application {
     public static  String name =null; //登录用户名
     public static String url=null;
+    public static int folderNum = 0; //目录线面的文件个数
     @Override
     public void onCreate() {
         super.onCreate();

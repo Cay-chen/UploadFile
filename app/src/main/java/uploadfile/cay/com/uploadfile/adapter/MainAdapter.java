@@ -13,6 +13,7 @@ import java.util.List;
 import uploadfile.cay.com.uploadfile.AllDatas;
 import uploadfile.cay.com.uploadfile.Bean.MainBean;
 import uploadfile.cay.com.uploadfile.MainActivity;
+import uploadfile.cay.com.uploadfile.MyApplication;
 import uploadfile.cay.com.uploadfile.R;
 
 /**
@@ -37,7 +38,7 @@ public class MainAdapter extends BaseQuickAdapter<MainBean> {
     protected void convert(BaseViewHolder baseViewHolder, MainBean mainBean) {
         baseViewHolder.setText(R.id.folder_name, mainBean.getImageName())
                 .setText(R.id.folder_time, mainBean.getImageTime());
-        if (mainBean.getNum() < MainActivity.folderNum) {
+        if (mainBean.getNum() < MyApplication.folderNum) {
             baseViewHolder.setImageResource(R.id.folder_image, R.mipmap.icon_list_folder);
         } else {
             Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + mainBean.getImageName() + "&check=2").into((ImageView) baseViewHolder.getView(R.id.folder_image));

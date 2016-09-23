@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.tencent.bugly.crashreport.CrashReport;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -110,7 +109,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     Toast.makeText(Login.this, "密码长度为6到25", Toast.LENGTH_SHORT).show();
                 } else {
                     sendCode();
-                    Log.i(TAG, "密码长度: "+upPassword.length());
+                    Log.i(TAG, "密码长度: " + upPassword.length());
                 }
 
             } else {
@@ -152,20 +151,24 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onResponse(String response, int id) {
                 UserBean userBean = JSON.parseObject(response, UserBean.class);
-                switch (userBean.resCode) {
-                    case "10001":
-                        ((TextView) findViewById(R.id.code_mail_tv)).setText(upMail);
-                        codeLayout.setVisibility(View.VISIBLE);
-                        singUpLayout.setVisibility(View.GONE);
-                        break;
-                    case "10002":
-                        Toast.makeText(Login.this, "该邮箱已被注册", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "10004":
-                        Toast.makeText(Login.this, "昵称已被使用", Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(Login.this, "系统异常！", Toast.LENGTH_SHORT).show();
+                if (userBean.resCode !=null){
+                    switch (userBean.resCode) {
+                        case "10001":
+                            ((TextView) findViewById(R.id.code_mail_tv)).setText(upMail);
+                            codeLayout.setVisibility(View.VISIBLE);
+                            singUpLayout.setVisibility(View.GONE);
+                            break;
+                        case "10002":
+                            Toast.makeText(Login.this, "该邮箱已被注册", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "10004":
+                            Toast.makeText(Login.this, "昵称已被使用", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            Toast.makeText(Login.this, "系统异常！", Toast.LENGTH_SHORT).show();
+                    }
+                }else {
+                    Toast.makeText(Login.this, "系统异常！", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -196,25 +199,30 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     @Override
                     public void onResponse(String response, int id) {
                         UserBean userBean = JSON.parseObject(response, UserBean.class);
-                        switch (userBean.resCode) {
-                            case "30001":
-                                successLayout.setVisibility(View.VISIBLE);
-                                codeLayout.setVisibility(View.GONE);
-                                break;
-                            case "30002":
-                                Toast.makeText(Login.this, "验证码错误", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "30003":
-                                Toast.makeText(Login.this, "验证码过期", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "30004":
-                                Toast.makeText(Login.this, "账号已经注册成功", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "30005":
-                                Toast.makeText(Login.this, "请输入验证码", Toast.LENGTH_SHORT).show();
-                                break;
-                            default:
-                                Toast.makeText(Login.this, "系统异常", Toast.LENGTH_SHORT).show();
+                        if (userBean.resCode != null) {
+                            switch (userBean.resCode) {
+                                case "30001":
+                                    successLayout.setVisibility(View.VISIBLE);
+                                    codeLayout.setVisibility(View.GONE);
+                                    break;
+                                case "30002":
+                                    Toast.makeText(Login.this, "验证码错误", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case "30003":
+                                    Toast.makeText(Login.this, "验证码过期", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case "30004":
+                                    Toast.makeText(Login.this, "账号已经注册成功", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case "30005":
+                                    Toast.makeText(Login.this, "请输入验证码", Toast.LENGTH_SHORT).show();
+                                    break;
+                                default:
+                                    Toast.makeText(Login.this, "系统异常", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(Login.this, "系统异常", Toast.LENGTH_SHORT).show();
+
                         }
                         Log.i(TAG, "resCode: " + userBean.resCode);
                         Log.i(TAG, "resMsg: " + userBean.resMsg);
@@ -247,6 +255,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             case R.id.login_sing_up_btn:
                 loginLayout.setVisibility(View.GONE);
                 singUpLayout.setVisibility(View.VISIBLE);
+                break;
             case R.id.login_btn:
                 singIn();
                 break;
@@ -263,46 +272,52 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(Login.this, "账号或密码不能为空", Toast.LENGTH_SHORT).show();
         } else {
-        OkHttpUtils.post().url(AllDatas.LOGIN_URL).addParams("password",password).addParams("username",username).build().execute(new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                UserBean userBean = JSON.parseObject(response, UserBean.class);
-                switch (userBean.resCode) {
-                    case "20001":
-                        MyApplication.name=userBean.resNikeName;
-                        MyApplication.url=userBean.resHeadUrl;
-                        Intent intent = new Intent(Login.this, MainActivity.class);
-                        startActivity(intent);
-                        Login.this.finish();
-                        Log.i(TAG, "userBean: resCode"+userBean.resCode);
-                        Log.i(TAG, "userBean: resHeadUrl"+userBean.resHeadUrl);
-                        Log.i(TAG, "userBean: resMsg"+userBean.resMsg);
-                        Log.i(TAG, "userBean: resNikeName"+userBean.resNikeName);
-                        Log.i(TAG, "MainActivity.name"+MyApplication.name);
-
-                        // Intent
-                        break;
-                    case "20002":
-                        Toast.makeText(Login.this, "密码错误", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "20003":
-                        Toast.makeText(Login.this, "无此账号", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "20004":
-                        Toast.makeText(Login.this, "账号为空", Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(Login.this, "系统错误", Toast.LENGTH_SHORT).show();
+            OkHttpUtils.post().url(AllDatas.LOGIN_URL).addParams("password", password).addParams("username", username).build().execute(new StringCallback() {
+                @Override
+                public void onError(Call call, Exception e, int id) {
 
                 }
 
-            }
-        });
+                @Override
+                public void onResponse(String response, int id) {
+                    UserBean userBean = JSON.parseObject(response, UserBean.class);
+                    Log.i(TAG, "resCode: " + userBean.resCode);
+                    if (userBean.resCode != null) {
+                        switch (userBean.resCode) {
+                            case "20001":
+                                MyApplication.name = userBean.resNikeName;
+                                MyApplication.url = userBean.resHeadUrl;
+                                Intent intent = new Intent(Login.this, MainActivity.class);
+                                startActivity(intent);
+                                Login.this.finish();
+                                Log.i(TAG, "userBean: resCode" + userBean.resCode);
+                                Log.i(TAG, "userBean: resHeadUrl" + userBean.resHeadUrl);
+                                Log.i(TAG, "userBean: resMsg" + userBean.resMsg);
+                                Log.i(TAG, "userBean: resNikeName" + userBean.resNikeName);
+                                Log.i(TAG, "MainActivity.name" + MyApplication.name);
+
+                                // Intent
+                                break;
+                            case "20002":
+                                Toast.makeText(Login.this, "密码错误", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "20003":
+                                Toast.makeText(Login.this, "无此账号", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "20004":
+                                Toast.makeText(Login.this, "账号为空", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                Toast.makeText(Login.this, "系统错误", Toast.LENGTH_SHORT).show();
+
+                        }
+                    } else {
+                        Toast.makeText(Login.this, "服务器异常", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }
+            });
         }
 
     }

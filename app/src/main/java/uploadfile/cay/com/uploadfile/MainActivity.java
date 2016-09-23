@@ -37,7 +37,7 @@ import uploadfile.cay.com.uploadfile.adapter.MainAdapter;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AAA";
-    public static int folderNum = 0; //目录线面的文件个数
+
     private List<String> selectImagesPath;  //上传所选图片的路径集合
     private List<MainBean> datas = new ArrayList<>();//Adapter 数据集合
     private RecyclerView mRecyclerView;     //显示的RecyclerView
@@ -79,45 +79,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-   /* private void init() {
-        datas.clear();
-        String url = AllDatas.SHOW_FILES_URL + pathList.get(pathList.size()-1);
-        OkHttpUtils.get().url(url).build().execute(new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                ShowFileBean showFileBean = JSON.parseObject(response, ShowFileBean.class);
-             //   Log.i(TAG, "onResponAAse: " + showFileBean.folders.toString());
-               // Log.i(TAG, "onResponAAse: " + showFileBean.images[0]);
-                List<String> text = new ArrayList<>();
-                List<String> time = new ArrayList<>();
-                folderNum = showFileBean.folders.length;
-                for (int i = 0; i < showFileBean.folders.length; i++) {
-                    text.add(showFileBean.folders[i]);
-                    time.add(showFileBean.foldersTime[i]);
-                    datas.add(new MainBean(showFileBean.folders[i], showFileBean.foldersTime[i], datas.size()));
-                }
-                for (int i = 0; i < showFileBean.images.length; i++) {
-                    text.add(showFileBean.images[i]);
-                    time.add(showFileBean.imagesTime[i]);
-                    datas.add(new MainBean(showFileBean.images[i], showFileBean.imagesTime[i], datas.size()));
-
-                }
-
-
-                onCk();
-
-
-            }
-        });
-
-    }*/
-
     /**
      * item的点击事件
      */
@@ -128,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int i) {
 
-                if (i < folderNum) {
+                if (i < MyApplication.folderNum) {
                     String nextPath = pathList.get(pathList.size() - 1) + "\\" + datas.get(i).getImageName();
                     pathList.add(nextPath);
                     showRecyclerView();
@@ -136,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
                     intent.putExtra(AllDatas.INTENT_CODE,AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + datas.get(i).getImageName() + "&check=1");
                     startActivity(intent);
-                   // Toast.makeText(MainActivity.this, "ID:" + view.getId() + "  名字:" + datas.get(i).getImageName(), Toast.LENGTH_LONG).show();
 
                 }
             }
@@ -222,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 // Log.i(TAG, "onResponAAse: " + showFileBean.images[0]);
                 List<String> text = new ArrayList<>();
                 List<String> time = new ArrayList<>();
-                folderNum = showFileBean.folders.length;
+                MyApplication.folderNum = showFileBean.folders.length;
                 for (int i = 0; i < showFileBean.folders.length; i++) {
                     text.add(showFileBean.folders[i]);
                     time.add(showFileBean.foldersTime[i]);
