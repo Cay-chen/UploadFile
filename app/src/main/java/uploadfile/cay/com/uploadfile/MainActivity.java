@@ -34,7 +34,7 @@ import uploadfile.cay.com.uploadfile.Bean.MainBean;
 import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
 import uploadfile.cay.com.uploadfile.adapter.MainAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     private static final String TAG = "AAA";
 
@@ -95,8 +95,9 @@ public class MainActivity extends AppCompatActivity {
                     showRecyclerView();
                 } else {
                     Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
-                    intent.putExtra(AllDatas.INTENT_CODE,AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + datas.get(i).getImageName() + "&check=1");
-                    startActivity(intent);
+                    String[]  xinx ={MainActivity.pathList.get(MainActivity.pathList.size()-1),datas.get(i).getImageName(),"1"};
+                    intent.putExtra(AllDatas.INTENT_CODE,xinx);
+                    startActivityForResult(intent,5);
 
                 }
             }
@@ -269,9 +270,6 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(String response, int id) {
                     uploadFileProgress++;
                     mProgress.setProgress(uploadFileProgress);
-                    Log.i(TAG, "uploadFileProgress: "+uploadFileProgress);
-                    Log.i(TAG, "selectImagesPath.size(): "+selectImagesPath.size());
-
                     if (uploadFileProgress == selectImagesPath.size()){
                         mProgress.dismiss();
                         showRecyclerView();
@@ -315,6 +313,12 @@ public class MainActivity extends AppCompatActivity {
 
                 // 处理你自己的逻辑 ....
             }
+
+        }
+        if (resultCode == 5) {
+            Log.i(TAG, "onActivityResult: "+data);
+            showRecyclerView();
+
         }
     }
 
@@ -327,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
         mProgress.setIcon(R.mipmap.ic_launcher);
         mProgress.setTitle("正在上传中");
         mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgress.setButton("确定", new DialogInterface.OnClickListener() {
+     /*   mProgress.setButton("确定", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -342,8 +346,10 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 Toast.makeText(MainActivity.this, "取消", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
+        mProgress.setCancelable(false);
         mProgress.show();
+
     }
 
 }

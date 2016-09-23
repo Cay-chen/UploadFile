@@ -44,7 +44,6 @@ public class MainAdapter extends BaseQuickAdapter<MainBean> {
             Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size()-1) + "&imagename=" + mainBean.getImageName() + "&check=2").into((ImageView) baseViewHolder.getView(R.id.folder_image));
         }
 
-       /* baseViewHolder.setOnClickListener(R.id.folder_image, new OnItemChildClickListener())
-                .setOnClickListener(R.id.folder_name, new OnItemChildClickListener());*/
+
     }
 }
