@@ -10,25 +10,31 @@
         android:orientation="vertical"
         android:visibility="visible">
 
-        <LinearLayout
+        <RelativeLayout
 
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:background="@color/colorPrimary"
-            android:gravity="center">
+            android:layout_height="65dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="@mipmap/toolbar"/>
 
             <TextView
+                android:id="@+id/folder_name"
+                android:layout_marginLeft="25dp"
+                android:textColor="#ffffff"
+                android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="帐户登陆"
                 android:textSize="26sp" />
-        </LinearLayout>
+        </RelativeLayout>
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="#425FF7">
+            android:background="#00A1DB">
 
             <LinearLayout
                 android:id="@+id/create_folder_ll"
@@ -47,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:text="新建文件夹"
-                    android:textColor="#B0B0B0"
+                    android:textColor="#FFFFFF"
                     android:textSize="16sp" />
 
 
@@ -70,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:text="上传"
-                    android:textColor="#B0B0B0"
+                    android:textColor="#FFFFFF"
                     android:textSize="16sp" />
 
 
@@ -108,8 +114,8 @@
         <Button
             android:id="@+id/folder_top_cancel_btn"
             android:layout_marginLeft="15dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:textColor="#ffffff"
             android:background="@drawable/main_activity_top_check"
@@ -121,13 +127,13 @@
             android:textSize="20sp"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
-            android:text="已选定1个"/>
+            />
 
         <Button
             android:id="@+id/folder_top_all_btn"
             android:layout_marginRight="15dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:text="全选"

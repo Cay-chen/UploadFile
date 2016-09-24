@@ -65,11 +65,11 @@ public class MainActivity extends AppCompatActivity {
     private Button topCancelButton;
     private Button topAllCheckButton;
     private TextView topText;
+    private TextView folderNameTextView;
 
     private String imageName; //根据路径截取出来的图片名称
     private ProgressDialog mProgress;//Dialog 进度条
     private List<UploadBean> upList = new ArrayList<>();
-    private DownloadManager downloadManager;
 
 
     @Override
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        //  downloadManager = DownloadService.getDownloadManager();
     }
 
     private void initViews() {
@@ -104,10 +103,12 @@ public class MainActivity extends AppCompatActivity {
         createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         topLayout = (RelativeLayout) findViewById(R.id.folder_top_ll);
-        topLayout.getBackground().setAlpha(50);
+        topLayout.getBackground().setAlpha(160);
         topCancelButton = (Button) findViewById(R.id.folder_top_cancel_btn);
         topText = (TextView) findViewById(R.id.folder_top_text);
         topAllCheckButton = (Button) findViewById(R.id.folder_top_all_btn);
+        folderNameTextView= (TextView) findViewById(R.id.folder_name);
+        folderNameTextView.setText(MyApplication.name);
 
     }
 
@@ -140,13 +141,13 @@ public class MainActivity extends AppCompatActivity {
         mainAdapter.setOnRecyclerViewItemLongClickListener(new BaseQuickAdapter.OnRecyclerViewItemLongClickListener() {
             @Override
             public boolean onItemLongClick(View view, int i) {
-
-                Log.i(TAG, "onItemLongClick: " + (MainAdapter.mPos).size());
+                mainAdapter.mPos.add(datas.get(i).getImageName());
+                Log.i(TAG, "onItemLongClick: "+mainAdapter.mPos.get(0));
                 isDuoxuan =true;
+                folderNameTextView.setVisibility(View.GONE);
                 topLayout.setVisibility(View.VISIBLE);
                 showRecyclerView(true);
                 mainAdapter. mPos.clear();
-                //view.setdi
                 return true;
             }
         });
@@ -154,8 +155,6 @@ public class MainActivity extends AppCompatActivity {
         mainAdapter.setOnRecyclerViewItemChildClickListener(new BaseQuickAdapter.OnRecyclerViewItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter baseQuickAdapter, View view, int i) {
-                Log.i(TAG, "BNAA");
-                String content = null;
                 MainBean status = (MainBean) baseQuickAdapter.getItem(i);
                 switch (view.getId()) {
                     case R.id.folder_check_box:
@@ -164,21 +163,13 @@ public class MainActivity extends AppCompatActivity {
                             mainAdapter.mPos.add(status.getImageName());
                         else
                             mainAdapter. mPos.remove(status.getImageName());
-                        topText.setText("你已选择了"+mainAdapter.mPos.size()+"个");
+                        topText.setText("已选定"+mainAdapter.mPos.size()+"个");
                         break;
                     case R.id.folder_name:
-                        content = "name:" + status.getImageTime();
+                       // content = "name:" + status.getImageTime();
                         break;
                 }
-              //  Toast.makeText(MainActivity.this, content, Toast.LENGTH_LONG).show();
 
-
-
-
-
-
-
-                //  baseQuickAdapter.
             }
         });
     }
@@ -220,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 createFolderName = editText.getText().toString();
-                //Toast.makeText(MainActivity.this, createFolderName, Toast.LENGTH_LONG).show();
                 String path = AllDatas.CREATE_FOLDER_URL + pathList.get((pathList.size()) - 1) + "\\" + createFolderName;
                 OkHttpUtils.get().url(path).build().execute(new StringCallback() {
                     @Override
@@ -338,7 +328,6 @@ public class MainActivity extends AppCompatActivity {
             String uploadFilePath = pathList.get(pathList.size() - 1);
 
             final File file = new File(selectImagesPath.get(i));
-            // Log.i(TAG, "onClick: " + names.get(i));
             Log.i(TAG, "大小: " + file.length());
             OkHttpUtils.post().addFile(uploadFilePath, imageName, file).url(AllDatas.UPLOAD_FILES_URL).build().execute(new StringCallback() {
                 @Override
@@ -442,39 +431,6 @@ public class MainActivity extends AppCompatActivity {
         mProgress.show();
 
     }
-   /* private void refreshUi(DownloadInfo downloadInfo) {
-        String downloadLength = Formatter.formatFileSize(MainActivity.this, downloadInfo.getDownloadLength());
-        String totalLength = Formatter.formatFileSize(DesActivity.this, downloadInfo.getTotalLength());
-        downloadSize.setText(downloadLength + "/" + totalLength);
-        String networkSpeed = Formatter.formatFileSize(DesActivity.this, downloadInfo.getNetworkSpeed());
-        netSpeed.setText(networkSpeed + "/s");
-        tvProgress.setText((Math.round(downloadInfo.getProgress() * 10000) * 1.0f / 100) + "%");
-        pbProgress.setMax((int) downloadInfo.getTotalLength());
-        pbProgress.setProgress((int) downloadInfo.getDownloadLength());
-        switch (downloadInfo.getState()) {
-            case DownloadManager.NONE:
-                download.setText("下载");
-                break;
-            case DownloadManager.DOWNLOADING:
-                download.setText("暂停");
-                break;
-            case DownloadManager.PAUSE:
-                download.setText("继续");
-                break;
-            case DownloadManager.WAITING:
-                download.setText("等待");
-                break;
-            case DownloadManager.ERROR:
-                download.setText("出错");
-                break;
-            case DownloadManager.FINISH:
-                if (ApkUtils.isAvailable(DesActivity.this, new File(downloadInfo.getTargetPath()))) {
-                    download.setText("卸载");
-                } else {
-                    download.setText("安装");
-                }
-                break;
-        }
-    }*/
+
 
 }

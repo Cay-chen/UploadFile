@@ -31,6 +31,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import java.io.File;
 
 import okhttp3.Call;
+import okhttp3.Request;
 import okhttp3.Response;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -50,7 +51,7 @@ public class PhotoActivity extends AppCompatActivity {
     private Button delButton;
     private Button downloadFileButton;
     private String[] xinxi;
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
     private String downPath = null;
     private ProgressDialog mProgress;//Dialog 进度条
 
@@ -128,10 +129,14 @@ public class PhotoActivity extends AppCompatActivity {
                                 Uri.fromFile(new File(downPath))));
                     }
                 }
-            //    progressDialog();
-                progressBar.setVisibility(View.VISIBLE);
-                //lzyOkhttp();
+
                 OkHttpUtils.get().url(AllDatas.DOWNLOAD_FILES_URLAA).addParams("username", xinxi[0]).addParams("imagename", xinxi[1]).addParams("check", xinxi[2]).build().execute(new FileCallBack(downPath, xinxi[1]) {
+                    @Override
+                    public void onBefore(Request request, int id) {
+                        super.onBefore(request, id);
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         Toast.makeText(PhotoActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
@@ -142,22 +147,19 @@ public class PhotoActivity extends AppCompatActivity {
                     public void onResponse(File response, int id) {
                         //通知相册更新图片
                         (PhotoActivity.this).sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                                Uri.fromFile(new File(downPath+"/"+xinxi[1]))));
+                                Uri.fromFile(new File(downPath + "/" + xinxi[1]))));
+                        progressBar.setVisibility(View.GONE);
+                        deleteRl.setVisibility(View.GONE);
+                        Toast.makeText(PhotoActivity.this, "成功下载到:"+downPath, Toast.LENGTH_SHORT).show();
+
                     }
 
                     @Override
                     public void inProgress(float progress, long total, int id) {
                         super.inProgress(progress, total, id);
-
-                        String downloadLength = Formatter.formatFileSize(getApplicationContext(), total);
-                        String totalLength = Formatter.formatFileSize(getApplicationContext(), total);
-                        Log.i(TAG, "progress: "+progress);
-                        Log.i(TAG, "total: "+total);
-                        Log.i(TAG, "id: "+id);
-                       // progressBar.setMax(Integer.parseInt(totalLength));
-                      //  progressBar.setProgress(Integer.parseInt(downloadLength));
                         progressBar.setMax(100);
                         progressBar.setProgress((int) (100 * progress));
+
 
                     }
                 });
@@ -191,12 +193,13 @@ public class PhotoActivity extends AppCompatActivity {
         }
         return false;
     }
+
     /**
      * 进度条Dialog
      */
     private void progressDialog() {
         mProgress = new ProgressDialog(this);
-       // mProgress.setMax(maxNum);
+        // mProgress.setMax(maxNum);
         mProgress.setIcon(R.mipmap.ic_launcher);
         mProgress.setTitle("正在上传中");
         mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -213,11 +216,11 @@ public class PhotoActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO Auto-generated method stub
-              //  Toast.makeText(PhotoActivity.this, "取消", Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(PhotoActivity.this, "取消", Toast.LENGTH_SHORT).show();
                 mProgress.dismiss();
             }
         });
-          mProgress.setCancelable(false);
+        mProgress.setCancelable(false);
         mProgress.show();
 
     }
@@ -228,7 +231,7 @@ public class PhotoActivity extends AppCompatActivity {
             public void onBefore(BaseRequest request) {
                 super.onBefore(request);
                 progressDialog();
-                Log.i(TAG, "onBefore: "+AllDatas.DOWNLOAD_FILES_URL + xinxi[0] + "&imagename=" + xinxi[1] + "&check=" + xinxi[2]);
+                Log.i(TAG, "onBefore: " + AllDatas.DOWNLOAD_FILES_URL + xinxi[0] + "&imagename=" + xinxi[1] + "&check=" + xinxi[2]);
             }
 
             @Override
@@ -245,7 +248,7 @@ public class PhotoActivity extends AppCompatActivity {
                 String totalLength = Formatter.formatFileSize(getApplicationContext(), totalSize);
                 mProgress.setMax(100);
                 mProgress.setProgress((int) (100 * progress));
-                Log.i(TAG, "progress: "+progress);
+                Log.i(TAG, "progress: " + progress);
             }
         });
     }
