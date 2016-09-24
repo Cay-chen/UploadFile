@@ -8,18 +8,29 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.lzy.okhttpserver.download.DownloadInfo;
+import com.lzy.okhttpserver.download.DownloadManager;
+import com.lzy.okhttpserver.download.DownloadService;
+import com.lzy.okhttpserver.download.db.DownloadRequest;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,12 +43,13 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 import okhttp3.Call;
 import uploadfile.cay.com.uploadfile.Bean.MainBean;
 import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
+import uploadfile.cay.com.uploadfile.Bean.UploadBean;
 import uploadfile.cay.com.uploadfile.adapter.MainAdapter;
+import uploadfile.cay.com.uploadfile.adapter.UploadFileAdapter;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AAA";
-
     private List<String> selectImagesPath;  //上传所选图片的路径集合
     private List<MainBean> datas = new ArrayList<>();//Adapter 数据集合
     private RecyclerView mRecyclerView;     //显示的RecyclerView
@@ -47,9 +59,17 @@ public class MainActivity extends AppCompatActivity  {
     private LinearLayout createFolderButton;//创建文件夹按钮
     private LinearLayout uploadFileButton;//上传文件按钮
     public static List<String> pathList = new ArrayList<>();//re显示的路径集合（显示那个文件夹内容的集合）
-    private static Boolean isExit = false;//判断双击退出系统
+    private static Boolean isExit = false;//判断双击退出系统记录相册
+    private Boolean isDuoxuan = false;
+    private RelativeLayout topLayout;
+    private Button topCancelButton;
+    private Button topAllCheckButton;
+    private TextView topText;
+
     private String imageName; //根据路径截取出来的图片名称
     private ProgressDialog mProgress;//Dialog 进度条
+    private List<UploadBean> upList = new ArrayList<>();
+    private DownloadManager downloadManager;
 
 
     @Override
@@ -58,12 +78,10 @@ public class MainActivity extends AppCompatActivity  {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         pathList.add(MyApplication.name);
-        uploadFileButton = (LinearLayout) findViewById(R.id.upload_file_ll);
-        createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        initViews();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-        showRecyclerView();
+        showRecyclerView(false);
         createFolderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,39 +96,98 @@ public class MainActivity extends AppCompatActivity  {
 
             }
         });
+        //  downloadManager = DownloadService.getDownloadManager();
     }
+
+    private void initViews() {
+        uploadFileButton = (LinearLayout) findViewById(R.id.upload_file_ll);
+        createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        topLayout = (RelativeLayout) findViewById(R.id.folder_top_ll);
+        topLayout.getBackground().setAlpha(50);
+        topCancelButton = (Button) findViewById(R.id.folder_top_cancel_btn);
+        topText = (TextView) findViewById(R.id.folder_top_text);
+        topAllCheckButton = (Button) findViewById(R.id.folder_top_all_btn);
+
+    }
+
     /**
      * item的点击事件
      */
-    private void onCk() {
-        mainAdapter = new MainAdapter(R.layout.folder_item, datas, MainActivity.this);
+    private void onCk(boolean isShowCheckBox) {
+        mainAdapter = new MainAdapter(R.layout.folder_item, datas, MainActivity.this, isShowCheckBox);
         mRecyclerView.setAdapter(mainAdapter);
         mainAdapter.setOnRecyclerViewItemClickListener(new BaseQuickAdapter.OnRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View view, int i) {
+                Log.i(TAG, "onItemClick: " + i);
 
                 if (i < MyApplication.folderNum) {
                     String nextPath = pathList.get(pathList.size() - 1) + "\\" + datas.get(i).getImageName();
                     pathList.add(nextPath);
-                    showRecyclerView();
+                    isDuoxuan = false;
+                    topLayout.setVisibility(View.GONE);
+                    showRecyclerView(false);
                 } else {
                     Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
-                    String[]  xinx ={MainActivity.pathList.get(MainActivity.pathList.size()-1),datas.get(i).getImageName(),"1"};
-                    intent.putExtra(AllDatas.INTENT_CODE,xinx);
-                    startActivityForResult(intent,5);
+                    String[] xinx = {MainActivity.pathList.get(MainActivity.pathList.size() - 1), datas.get(i).getImageName(), "1"};
+                    intent.putExtra(AllDatas.INTENT_CODE, xinx);
+                    startActivityForResult(intent, 5);
 
                 }
             }
         });
+        mainAdapter.setOnRecyclerViewItemLongClickListener(new BaseQuickAdapter.OnRecyclerViewItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(View view, int i) {
+
+                Log.i(TAG, "onItemLongClick: " + (MainAdapter.mPos).size());
+                isDuoxuan =true;
+                topLayout.setVisibility(View.VISIBLE);
+                showRecyclerView(true);
+                mainAdapter. mPos.clear();
+                //view.setdi
+                return true;
+            }
+        });
+
+        mainAdapter.setOnRecyclerViewItemChildClickListener(new BaseQuickAdapter.OnRecyclerViewItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter baseQuickAdapter, View view, int i) {
+                Log.i(TAG, "BNAA");
+                String content = null;
+                MainBean status = (MainBean) baseQuickAdapter.getItem(i);
+                switch (view.getId()) {
+                    case R.id.folder_check_box:
+                        CheckBox cb = (CheckBox) view;
+                        if (cb.isChecked())
+                            mainAdapter.mPos.add(status.getImageName());
+                        else
+                            mainAdapter. mPos.remove(status.getImageName());
+                        topText.setText("你已选择了"+mainAdapter.mPos.size()+"个");
+                        break;
+                    case R.id.folder_name:
+                        content = "name:" + status.getImageTime();
+                        break;
+                }
+              //  Toast.makeText(MainActivity.this, content, Toast.LENGTH_LONG).show();
 
 
+
+
+
+
+
+                //  baseQuickAdapter.
+            }
+        });
     }
 
     /**
      * item中的子按钮  需要在Adapter中设置
      */
     public void onChildCL() {
-        mainAdapter = new MainAdapter(R.layout.folder_item, datas, MainActivity.this);
+        mainAdapter = new MainAdapter(R.layout.folder_item, datas, MainActivity.this, false);
         mRecyclerView.setAdapter(mainAdapter);
         mainAdapter.setOnRecyclerViewItemChildClickListener(new BaseQuickAdapter.OnRecyclerViewItemChildClickListener() {
             @Override
@@ -154,20 +231,19 @@ public class MainActivity extends AppCompatActivity  {
                     @Override
                     public void onResponse(String response, int id) {
                         Toast.makeText(MainActivity.this, "创建成功", Toast.LENGTH_LONG).show();
-                        showRecyclerView();
+                        showRecyclerView(false);
                     }
                 });
             }
-       });
+        });
         builder.show();
 
     }
 
     /**
      * RecyclerView 显示的内容和数据
-     *
      */
-    private void showRecyclerView() {
+    private void showRecyclerView(final boolean isShowBockBox) {
         Log.i(TAG, "最后路径: " + pathList.get(pathList.size() - 1));
         datas.clear();
         OkHttpUtils.get().url(AllDatas.SHOW_FILES_URL + pathList.get(pathList.size() - 1)).build().execute(new StringCallback() {
@@ -197,7 +273,7 @@ public class MainActivity extends AppCompatActivity  {
                 }
 
 
-                onCk();
+                onCk(isShowBockBox);
 
 
             }
@@ -209,11 +285,17 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (KeyEvent.KEYCODE_BACK == keyCode) {
-            if (pathList.size() > 1) {
-                pathList.remove(pathList.size() - 1);
-                showRecyclerView();
+            if (isDuoxuan) {
+                isDuoxuan =false;
+                topLayout.setVisibility(View.GONE);
+                showRecyclerView(false);
             } else {
-                exitBy2Click();
+                if (pathList.size() > 1) {
+                    pathList.remove(pathList.size() - 1);
+                    showRecyclerView(false);
+                } else {
+                    exitBy2Click();
+                }
             }
         }
         return false;
@@ -246,15 +328,16 @@ public class MainActivity extends AppCompatActivity  {
      * 上传文件
      */
     private void uploadFile() {
+        //  UploadFileAdapter uploadFileAdapterAdapter = new UploadFileAdapter(R.layout.upload_progress_item,upList, MainActivity.this);
+        //   mRecyclerView.setAdapter(uploadFileAdapterAdapter);
 
         progressDialog(selectImagesPath.size());
         for (int i = 0; i < selectImagesPath.size(); i++) {
             String[] names = selectImagesPath.get(i).split("\\/"); //按照/ 截取数组
             imageName = names[(names.length) - 1];//取出文件名
-
             String uploadFilePath = pathList.get(pathList.size() - 1);
 
-            File file = new File(selectImagesPath.get(i));
+            final File file = new File(selectImagesPath.get(i));
             // Log.i(TAG, "onClick: " + names.get(i));
             Log.i(TAG, "大小: " + file.length());
             OkHttpUtils.post().addFile(uploadFilePath, imageName, file).url(AllDatas.UPLOAD_FILES_URL).build().execute(new StringCallback() {
@@ -270,11 +353,11 @@ public class MainActivity extends AppCompatActivity  {
                 public void onResponse(String response, int id) {
                     uploadFileProgress++;
                     mProgress.setProgress(uploadFileProgress);
-                    if (uploadFileProgress == selectImagesPath.size()){
+                    if (uploadFileProgress == selectImagesPath.size()) {
                         mProgress.dismiss();
-                        showRecyclerView();
+                        showRecyclerView(false);
                     }
-                        Log.i(TAG, "成功上传" + imageName);
+                    Log.i(TAG, "成功上传" + imageName);
                 }
             });
 
@@ -287,7 +370,14 @@ public class MainActivity extends AppCompatActivity  {
         if (requestCode == AllDatas.SELECT_IMAGE_ACTIVITY_CODE) {
             if (resultCode == RESULT_OK) {
                 // 获取返回的图片列表
+                upList.clear();
                 selectImagesPath = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+                for (int i = 0; i < selectImagesPath.size(); i++) {
+                    String[] names = selectImagesPath.get(i).split("\\/"); //按照/ 截取数组
+                    String upImageName = names[(names.length) - 1];//取出文件名
+                    String uploadFilePath = pathList.get(pathList.size() - 1);
+                    upList.add(new UploadBean(selectImagesPath.get(i), upImageName, uploadFilePath));
+                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("是否上传"); //设置标题
                 builder.setMessage("你选择了" + selectImagesPath.size() + "张照片"); //设置内容
@@ -316,8 +406,8 @@ public class MainActivity extends AppCompatActivity  {
 
         }
         if (resultCode == 5) {
-            Log.i(TAG, "onActivityResult: "+data);
-            showRecyclerView();
+            Log.i(TAG, "onActivityResult: " + data);
+            showRecyclerView(false);
 
         }
     }
@@ -331,15 +421,16 @@ public class MainActivity extends AppCompatActivity  {
         mProgress.setIcon(R.mipmap.ic_launcher);
         mProgress.setTitle("正在上传中");
         mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-     /*   mProgress.setButton("确定", new DialogInterface.OnClickListener() {
+        mProgress.setButton("后台上传", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                mProgress.dismiss();
                 // TODO Auto-generated method stub
-                Toast.makeText(MainActivity.this, "确定", Toast.LENGTH_SHORT).show();
+                //   Toast.makeText(MainActivity.this, "确定", Toast.LENGTH_SHORT).show();
             }
         });
-        mProgress.setButton2("取消", new DialogInterface.OnClickListener() {
+       /* mProgress.setButton2("取消", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -351,5 +442,39 @@ public class MainActivity extends AppCompatActivity  {
         mProgress.show();
 
     }
+   /* private void refreshUi(DownloadInfo downloadInfo) {
+        String downloadLength = Formatter.formatFileSize(MainActivity.this, downloadInfo.getDownloadLength());
+        String totalLength = Formatter.formatFileSize(DesActivity.this, downloadInfo.getTotalLength());
+        downloadSize.setText(downloadLength + "/" + totalLength);
+        String networkSpeed = Formatter.formatFileSize(DesActivity.this, downloadInfo.getNetworkSpeed());
+        netSpeed.setText(networkSpeed + "/s");
+        tvProgress.setText((Math.round(downloadInfo.getProgress() * 10000) * 1.0f / 100) + "%");
+        pbProgress.setMax((int) downloadInfo.getTotalLength());
+        pbProgress.setProgress((int) downloadInfo.getDownloadLength());
+        switch (downloadInfo.getState()) {
+            case DownloadManager.NONE:
+                download.setText("下载");
+                break;
+            case DownloadManager.DOWNLOADING:
+                download.setText("暂停");
+                break;
+            case DownloadManager.PAUSE:
+                download.setText("继续");
+                break;
+            case DownloadManager.WAITING:
+                download.setText("等待");
+                break;
+            case DownloadManager.ERROR:
+                download.setText("出错");
+                break;
+            case DownloadManager.FINISH:
+                if (ApkUtils.isAvailable(DesActivity.this, new File(downloadInfo.getTargetPath()))) {
+                    download.setText("卸载");
+                } else {
+                    download.setText("安装");
+                }
+                break;
+        }
+    }*/
 
 }

@@ -10,16 +10,20 @@ import android.os.Environment;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
+import com.lzy.okhttputils.callback.FileCallback;
+import com.lzy.okhttputils.request.BaseRequest;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -27,6 +31,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import java.io.File;
 
 import okhttp3.Call;
+import okhttp3.Response;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
@@ -45,6 +50,7 @@ public class PhotoActivity extends AppCompatActivity {
     private Button delButton;
     private Button downloadFileButton;
     private String[] xinxi;
+    ProgressBar progressBar;
     private String downPath = null;
     private ProgressDialog mProgress;//Dialog 进度条
 
@@ -122,8 +128,9 @@ public class PhotoActivity extends AppCompatActivity {
                                 Uri.fromFile(new File(downPath))));
                     }
                 }
-                progressDialog();
-
+            //    progressDialog();
+                progressBar.setVisibility(View.VISIBLE);
+                //lzyOkhttp();
                 OkHttpUtils.get().url(AllDatas.DOWNLOAD_FILES_URLAA).addParams("username", xinxi[0]).addParams("imagename", xinxi[1]).addParams("check", xinxi[2]).build().execute(new FileCallBack(downPath, xinxi[1]) {
                     @Override
                     public void onError(Call call, Exception e, int id) {
@@ -142,11 +149,15 @@ public class PhotoActivity extends AppCompatActivity {
                     public void inProgress(float progress, long total, int id) {
                         super.inProgress(progress, total, id);
 
+                        String downloadLength = Formatter.formatFileSize(getApplicationContext(), total);
+                        String totalLength = Formatter.formatFileSize(getApplicationContext(), total);
                         Log.i(TAG, "progress: "+progress);
                         Log.i(TAG, "total: "+total);
                         Log.i(TAG, "id: "+id);
-
-                        mProgress.setProgress((int) (100 * progress));
+                       // progressBar.setMax(Integer.parseInt(totalLength));
+                      //  progressBar.setProgress(Integer.parseInt(downloadLength));
+                        progressBar.setMax(100);
+                        progressBar.setProgress((int) (100 * progress));
 
                     }
                 });
@@ -162,6 +173,7 @@ public class PhotoActivity extends AppCompatActivity {
         mPhotoView = (PhotoView) findViewById(R.id.phone);
         delButton = (Button) findViewById(R.id.photo_del_btn);
         downloadFileButton = (Button) findViewById(R.id.photo_download);
+        progressBar = (ProgressBar) findViewById(R.id.progress11);
     }
 
     @Override
@@ -205,9 +217,37 @@ public class PhotoActivity extends AppCompatActivity {
                 mProgress.dismiss();
             }
         });
-       mProgress.setCancelable(false);
+          mProgress.setCancelable(false);
         mProgress.show();
 
+    }
+
+    private void lzyOkhttp() {
+        com.lzy.okhttputils.OkHttpUtils.get(AllDatas.DOWNLOAD_FILES_URL + xinxi[0] + "&imagename=" + xinxi[1] + "&check=" + xinxi[2]).tag(this).execute(new FileCallback(downPath, xinxi[1]) {
+            @Override
+            public void onBefore(BaseRequest request) {
+                super.onBefore(request);
+                progressDialog();
+                Log.i(TAG, "onBefore: "+AllDatas.DOWNLOAD_FILES_URL + xinxi[0] + "&imagename=" + xinxi[1] + "&check=" + xinxi[2]);
+            }
+
+            @Override
+            public void onSuccess(File file, Call call, Response response) {
+                Log.i(TAG, "onSuccess: ");
+                mProgress.dismiss();
+            }
+
+
+            @Override
+            public void downloadProgress(long currentSize, long totalSize, float progress, long networkSpeed) {
+                super.downloadProgress(currentSize, totalSize, progress, networkSpeed);
+                String downloadLength = Formatter.formatFileSize(getApplicationContext(), currentSize);
+                String totalLength = Formatter.formatFileSize(getApplicationContext(), totalSize);
+                mProgress.setMax(100);
+                mProgress.setProgress((int) (100 * progress));
+                Log.i(TAG, "progress: "+progress);
+            }
+        });
     }
 
 

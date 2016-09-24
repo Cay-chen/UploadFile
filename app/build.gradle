@@ -34,4 +34,6 @@ dependencies {
     compile 'com.github.lovetuzitong:MultiImageSelector:1.2'
     compile 'com.alibaba:fastjson:1.2.17'
     compile 'com.tencent.bugly:crashreport:latest.release'
+    compile 'com.lzy.net:okhttputils:1.8.1'  //可以单独使用，不需要依赖下方的扩展包
+    compile 'com.lzy.net:okhttpserver:1.0.3' //扩展了下载管理和上传管理，根据需要添加
 }
