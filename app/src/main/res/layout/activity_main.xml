@@ -118,7 +118,7 @@
             android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:textColor="#ffffff"
-            android:background="@drawable/main_activity_top_check"
+            android:background="@drawable/button_bg"
             android:text="取消" />
         <TextView
             android:id="@+id/folder_top_text"
@@ -138,8 +138,33 @@
             android:layout_centerVertical="true"
             android:text="全选"
             android:textColor="#ffffff"
-            android:background="@drawable/main_activity_top_check"
+            android:background="@drawable/button_bg"
             android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/folder_tab_ll"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#000000"
+        android:gravity="center_vertical"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/folder_dowanload_btn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="50dp"
+            android:background="@drawable/download_bg" />
+
+        <Button
+            android:id="@+id/folder_delete_btn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:background="@drawable/delect_bg" />
 
     </RelativeLayout>
 </RelativeLayout>
