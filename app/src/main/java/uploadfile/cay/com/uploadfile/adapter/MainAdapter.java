@@ -23,7 +23,7 @@ import uploadfile.cay.com.uploadfile.R;
  * Created by Cay on 2016/9/21.
  */
 public class MainAdapter extends BaseQuickAdapter<MainBean> {
-    public static List<String> mPos = new ArrayList<>();
+ //   public static List<String> mPos = new ArrayList<>();
     private Boolean isShowCheckBox; //是否显示CheckBox
     private Context context;
     public MainAdapter(int layoutResId, List<MainBean> data, Context context, Boolean isShowCheckBox) {
@@ -46,10 +46,10 @@ public class MainAdapter extends BaseQuickAdapter<MainBean> {
         } else {
             cb.setVisibility(View.GONE);
         }
-        cb.setChecked(false);
-        if (mPos.contains(mainBean.getImageName())) {
+        cb.setChecked(mainBean.isCheckBox());
+     /*   if (mPos.contains(mainBean.getImageName())) {
             cb.setChecked(true);
-        }
+        }*/
         baseViewHolder.setOnClickListener(R.id.folder_check_box, new OnItemChildClickListener()); //设置checkbook的监听
 
     }

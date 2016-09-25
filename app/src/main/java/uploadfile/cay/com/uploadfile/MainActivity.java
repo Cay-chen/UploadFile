@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private Button topAllCheckButton;
     private TextView topText;
     private TextView folderNameTextView;
+    private int num=0;
 
     private String imageName; //根据路径截取出来的图片名称
     private ProgressDialog mProgress;//Dialog 进度条
@@ -126,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
                     pathList.add(nextPath);
                     isDuoxuan = false;
                     topLayout.setVisibility(View.GONE);
+                    topText.setText("");
                     showRecyclerView(false);
-                    Log.i(TAG, "isDuoxuan: " + isDuoxuan);
                 } else {
                     Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
                     String[] xinx = {MainActivity.pathList.get(MainActivity.pathList.size() - 1), datas.get(i).getImageName(), "1"};
@@ -139,27 +140,44 @@ public class MainActivity extends AppCompatActivity {
         mainAdapter.setOnRecyclerViewItemLongClickListener(new BaseQuickAdapter.OnRecyclerViewItemLongClickListener() {
             @Override
             public boolean onItemLongClick(View view, int i) {
-                mainAdapter.mPos.add(datas.get(i).getImageName());
+                num=0;
+              //  mainAdapter.mPos.add(datas.get(i).getImageName());
                 isDuoxuan = true;
                 folderNameTextView.setVisibility(View.GONE);
                 topLayout.setVisibility(View.VISIBLE);
                 showRecyclerView(true);
-                mainAdapter.mPos.clear();
+               // mainAdapter.mPos.clear();
                 return true;
             }
         });
         mainAdapter.setOnRecyclerViewItemChildClickListener(new BaseQuickAdapter.OnRecyclerViewItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter baseQuickAdapter, View view, int i) {
-                MainBean status = (MainBean) baseQuickAdapter.getItem(i);
+                MainBean mainBean = (MainBean) baseQuickAdapter.getItem(i);
                 switch (view.getId()) {
                     case R.id.folder_check_box:
                         CheckBox cb = (CheckBox) view;
-                        if (cb.isChecked())
-                            mainAdapter.mPos.add(status.getImageName());
-                        else
-                            mainAdapter.mPos.remove(status.getImageName());
-                        topText.setText(R.string.select + mainAdapter.mPos.size() + R.string.ge);
+                        if (cb.isChecked()) {
+                            mainBean.setCheckBox(true);
+                            num++;
+                           // mainAdapter.mPos.add(status.getImageName());
+                           if (num > 0) {
+
+                                topText.setText("已选定" + num + "个");
+                            } else {
+                              topText.setText("");
+                            }
+                        } else {
+                            mainBean.setCheckBox(false);
+
+                            num--;
+                            if (num>0) {
+                                topText.setText("已选定" +num + "个");
+                            } else {
+                                topText.setText("");
+
+                            }
+                        }
                         break;
                     case R.id.folder_name:
                         // content = "name:" + status.getImageTime();
@@ -217,10 +235,10 @@ public class MainActivity extends AppCompatActivity {
                 ShowFileBean showFileBean = JSON.parseObject(response, ShowFileBean.class);
                 MyApplication.folderNum = showFileBean.folders.length;
                 for (int i = 0; i < showFileBean.folders.length; i++) {
-                    datas.add(new MainBean(showFileBean.folders[i], showFileBean.foldersTime[i], datas.size()));
+                    datas.add(new MainBean(showFileBean.folders[i], showFileBean.foldersTime[i], datas.size(),false));
                 }
                 for (int i = 0; i < showFileBean.images.length; i++) {
-                    datas.add(new MainBean(showFileBean.images[i], showFileBean.imagesTime[i], datas.size()));
+                    datas.add(new MainBean(showFileBean.images[i], showFileBean.imagesTime[i], datas.size(),false));
                 }
 
                 onCk(isShowBockBox);
@@ -237,8 +255,11 @@ public class MainActivity extends AppCompatActivity {
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             if (isDuoxuan) {
                 isDuoxuan = false;
+                topText.setText("");
                 topLayout.setVisibility(View.GONE);
+                folderNameTextView.setVisibility(View.VISIBLE);
                 showRecyclerView(false);
+
             } else {
                 if (pathList.size() > 1) {
                     pathList.remove(pathList.size() - 1);
@@ -302,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
                     mProgress.setProgress(uploadFileProgress);
                     if (uploadFileProgress == selectImagesPath.size()) {
                         mProgress.dismiss();
+                        Toast.makeText(MainActivity.this, "上传完成", Toast.LENGTH_SHORT).show();
                         showRecyclerView(false);
                     }
                 }
@@ -318,12 +340,6 @@ public class MainActivity extends AppCompatActivity {
                 // 获取返回的图片列表
                 upList.clear();
                 selectImagesPath = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
-               /* for (int i = 0; i < selectImagesPath.size(); i++) {
-                    String[] names = selectImagesPath.get(i).split("\\/"); //按照/ 截取数组
-                    String upImageName = names[(names.length) - 1];//取出文件名
-                    String uploadFilePath = pathList.get(pathList.size() - 1);
-                    upList.add(new UploadBean(selectImagesPath.get(i), upImageName, uploadFilePath));
-                }*/
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("是否上传"); //设置标题
                 builder.setMessage("你选择了" + selectImagesPath.size() + "张照片"); //设置内容
@@ -338,6 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() { //设置取消按钮
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        selectImagesPath.clear();//清楚数据
                         dialog.dismiss();
                     }
                 });
@@ -354,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 进度条Dialog
+     * 上传进度条Dialog
      */
     private void progressDialog(int maxNum) {
         mProgress = new ProgressDialog(this);

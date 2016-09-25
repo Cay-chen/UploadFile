@@ -8,11 +8,13 @@ public class MainBean {
     private String imageName;
     private String imageTime;
     private int num;
+    private boolean isCheckBox;
 
-    public MainBean(String imageName, String imageTime, int num) {
+    public MainBean(String imageName, String imageTime, int num, boolean isCheckBox) {
         this.imageName = imageName;
         this.imageTime = imageTime;
         this.num = num;
+        this.isCheckBox = isCheckBox;
     }
 
     public String getImageName() {
@@ -37,5 +39,13 @@ public class MainBean {
 
     public void setNum(int num) {
         this.num = num;
+    }
+
+    public boolean isCheckBox() {
+        return isCheckBox;
+    }
+
+    public void setCheckBox(boolean checkBox) {
+        isCheckBox = checkBox;
     }
 }

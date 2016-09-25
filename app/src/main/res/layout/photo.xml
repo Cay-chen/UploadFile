@@ -46,9 +46,10 @@
 
     </RelativeLayout>
     <ProgressBar
-        android:layout_above="@+id/photo_del_down_ll"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentBottom="true"
         android:id="@+id/progress11"
-        android:visibility="visible"
+        android:visibility="gone"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

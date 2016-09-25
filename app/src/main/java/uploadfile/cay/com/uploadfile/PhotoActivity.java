@@ -23,6 +23,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import java.io.File;
 
 import okhttp3.Call;
+import okhttp3.Request;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import uploadfile.cay.com.uploadfile.Bean.UserBean;
@@ -113,6 +114,13 @@ public class PhotoActivity extends AppCompatActivity {
                     /*********************** 开始下载*******************************/
                 OkHttpUtils.get().url(AllDatas.DOWNLOAD_FILES_URLAA).addParams("username", xinxi[0]).addParams("imagename", xinxi[1]).addParams("check", xinxi[2]).build().execute(new FileCallBack(downPath, xinxi[1]) {
                     @Override
+                    public void onBefore(Request request, int id) {
+                        super.onBefore(request, id);
+                        isShow = false;
+                        deleteRl.setVisibility(View.GONE);
+                    }
+
+                    @Override
                     public void onError(Call call, Exception e, int id) {
                         Toast.makeText(PhotoActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
                     }
@@ -122,9 +130,8 @@ public class PhotoActivity extends AppCompatActivity {
                         //通知相册更新图片
                         (PhotoActivity.this).sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
                                 Uri.fromFile(new File(downPath + "/" + xinxi[1]))));
-
                         progressBar.setVisibility(View.GONE);
-                        deleteRl.setVisibility(View.GONE);
+
                         Toast.makeText(PhotoActivity.this, "成功下载到:"+downPath, Toast.LENGTH_SHORT).show();
 
                     }
