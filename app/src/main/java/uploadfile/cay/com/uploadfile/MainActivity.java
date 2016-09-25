@@ -257,6 +257,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onError(Call call, Exception e, int id) {
                     uploadFileProgress++;
                     mProgress.setProgress(uploadFileProgress);
+                    if (uploadFileProgress == selectImagesPath.size()) {
+                        mProgress.dismiss();
+                        Toast.makeText(MainActivity.this, "上传失败", Toast.LENGTH_SHORT).show();
+                        updataDatas(false);
+                        isAllCheck = true;
+                    }
                 }
 
                 @Override
@@ -622,8 +628,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onError(Call call, Exception e, int id) {
-                    Toast.makeText(MainActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
                     uploadFileProgress++;
+                    mProgress.setProgress(uploadFileProgress);
+                    if (uploadFileProgress == isSeceltList.size()) {
+                        mProgress.dismiss();
+                        Toast.makeText(MainActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+                        cancledMultiselect();
+                    }
                 }
 
                 @Override
