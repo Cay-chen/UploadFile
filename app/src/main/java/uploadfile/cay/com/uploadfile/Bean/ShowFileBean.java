@@ -3,6 +3,7 @@ package uploadfile.cay.com.uploadfile.Bean;
 import java.util.Arrays;
 
 /**
+ *
  * Created by Cay on 2016/9/20.
  */
 public class ShowFileBean {

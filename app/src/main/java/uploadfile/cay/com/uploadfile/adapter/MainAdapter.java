@@ -1,7 +1,6 @@
 package uploadfile.cay.com.uploadfile.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -15,33 +14,23 @@ import java.util.List;
 
 import uploadfile.cay.com.uploadfile.AllDatas;
 import uploadfile.cay.com.uploadfile.Bean.MainBean;
-import uploadfile.cay.com.uploadfile.Bean.UploadBean;
 import uploadfile.cay.com.uploadfile.MainActivity;
 import uploadfile.cay.com.uploadfile.MyApplication;
 import uploadfile.cay.com.uploadfile.R;
 
 /**
+ *
  * Created by Cay on 2016/9/21.
  */
 public class MainAdapter extends BaseQuickAdapter<MainBean> {
     public static List<String> mPos = new ArrayList<>();
-    private Boolean isShowCheckBox;
+    private Boolean isShowCheckBox; //是否显示CheckBox
     private Context context;
-
     public MainAdapter(int layoutResId, List<MainBean> data, Context context, Boolean isShowCheckBox) {
         super(layoutResId, data);
         this.context = context;
         this.isShowCheckBox = isShowCheckBox;
     }
-
-    public MainAdapter(List<MainBean> data) {
-        super(data);
-    }
-
-    public MainAdapter(View contentView, List<MainBean> data) {
-        super(contentView, data);
-    }
-
     @Override
     protected void convert(final BaseViewHolder baseViewHolder, final MainBean mainBean) {
         baseViewHolder.setText(R.id.folder_name, mainBean.getImageName())
@@ -52,28 +41,16 @@ public class MainAdapter extends BaseQuickAdapter<MainBean> {
             Glide.with(context).load(AllDatas.DOWNLOAD_FILES_URL + MainActivity.pathList.get(MainActivity.pathList.size() - 1) + "&imagename=" + mainBean.getImageName() + "&check=2").into((ImageView) baseViewHolder.getView(R.id.folder_image));
         }
         final CheckBox cb = baseViewHolder.getView(R.id.folder_check_box);
-
         if (isShowCheckBox) {
             cb.setVisibility(View.VISIBLE);
+        } else {
+            cb.setVisibility(View.GONE);
         }
         cb.setChecked(false);
         if (mPos.contains(mainBean.getImageName())) {
             cb.setChecked(true);
         }
-        baseViewHolder.setOnClickListener(R.id.folder_check_box, new OnItemChildClickListener());
-
-
-        /*cb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (cb.isChecked())
-                    mPos.add(mainBean.getImageName());
-                else
-                    mPos.remove(mainBean.getImageName());
-                Log.i(TAG, "onClick: " + mPos.size());
-            }
-        });*/
+        baseViewHolder.setOnClickListener(R.id.folder_check_box, new OnItemChildClickListener()); //设置checkbook的监听
 
     }
 }

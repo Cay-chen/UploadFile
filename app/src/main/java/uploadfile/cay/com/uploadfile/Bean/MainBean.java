@@ -1,6 +1,7 @@
 package uploadfile.cay.com.uploadfile.Bean;
 
 /**
+ *
  * Created by Cay on 2016/9/21.
  */
 public class MainBean {

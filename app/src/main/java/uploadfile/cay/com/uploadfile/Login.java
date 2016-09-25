@@ -21,6 +21,7 @@ import okhttp3.Call;
 import uploadfile.cay.com.uploadfile.Bean.UserBean;
 
 /**
+ *
  * Created by C on 2016/9/22.
  */
 public class Login extends AppCompatActivity implements View.OnClickListener {
@@ -35,8 +36,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     private String upMail;//邮箱
     private String upNikeName;//昵称
     private String upPassword;//密码
-    private String upRePassword;//确认密码
-    private String code;//验证码
     private LinearLayout codeLayout;//验证码信息界面
     private Button codeButton;
     private LinearLayout successLayout;//成功界面
@@ -44,8 +43,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     private LinearLayout loginLayout;//登录界面
     private Button loginSingUpBtn;//切换到注册页面按钮
     private Button loginButton;//登录按钮
-    private String username;//用户名
-    private String password;//密码
 
 
     @Override
@@ -101,7 +98,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         upMail = singUpMail.getText().toString();
         upNikeName = singUpNikeName.getText().toString();
         upPassword = singUpPaaword.getText().toString();
-        upRePassword = singUpRePassword.getText().toString();
+        String upRePassword = singUpRePassword.getText().toString();
 
         if (!upMail.isEmpty() && !upNikeName.isEmpty() && !upPassword.isEmpty() && !upRePassword.isEmpty()) {
             if (upPassword.equals(upRePassword)) {
@@ -151,7 +148,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onResponse(String response, int id) {
                 UserBean userBean = JSON.parseObject(response, UserBean.class);
-                if (userBean.resCode !=null){
+                if (userBean.resCode != null) {
                     switch (userBean.resCode) {
                         case "10001":
                             ((TextView) findViewById(R.id.code_mail_tv)).setText(upMail);
@@ -167,7 +164,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                         default:
                             Toast.makeText(Login.this, "系统异常！", Toast.LENGTH_SHORT).show();
                     }
-                }else {
+                } else {
                     Toast.makeText(Login.this, "系统异常！", Toast.LENGTH_SHORT).show();
                 }
 
@@ -181,7 +178,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
     private void singUpMsg() {
 
-        code = ((EditText) findViewById(R.id.code_et)).getText().toString();
+        String code = ((EditText) findViewById(R.id.code_et)).getText().toString();
         if (code.isEmpty()) {
             Toast.makeText(Login.this, "请填写验证码", Toast.LENGTH_SHORT).show();
 
@@ -267,8 +264,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
      * 登录逻辑
      */
     private void singIn() {
-        username = ((EditText) findViewById(R.id.login_username_et)).getText().toString();
-        password = ((EditText) findViewById(R.id.login_password_et)).getText().toString();
+        String username = ((EditText) findViewById(R.id.login_username_et)).getText().toString();
+        String password = ((EditText) findViewById(R.id.login_password_et)).getText().toString();
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(Login.this, "账号或密码不能为空", Toast.LENGTH_SHORT).show();
         } else {

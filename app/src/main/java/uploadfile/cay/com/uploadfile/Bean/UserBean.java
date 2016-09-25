@@ -1,6 +1,7 @@
 package uploadfile.cay.com.uploadfile.Bean;
 
 /**
+ *
  * Created by C on 2016/9/22.
  */
 public class UserBean {

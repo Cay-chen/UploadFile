@@ -1,11 +1,11 @@
 package uploadfile.cay.com.uploadfile;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.tencent.bugly.crashreport.CrashReport;
 
 /**
+ *
  * Created by C on 2016/9/22.
  */
 public class MyApplication extends Application {
@@ -15,7 +15,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        CrashReport.initCrashReport(getApplicationContext());
-        Log.i("TAG", "onCreate:QQQQ ");
+        CrashReport.initCrashReport(getApplicationContext()); //初始化bugly
     }
 }
