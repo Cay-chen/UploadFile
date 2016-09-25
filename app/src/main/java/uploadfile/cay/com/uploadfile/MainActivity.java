@@ -42,6 +42,7 @@ import okhttp3.Request;
 import uploadfile.cay.com.uploadfile.Bean.MainBean;
 import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
 import uploadfile.cay.com.uploadfile.Bean.UploadBean;
+import uploadfile.cay.com.uploadfile.Bean.UserBean;
 import uploadfile.cay.com.uploadfile.adapter.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         topLayout = (RelativeLayout) findViewById(R.id.folder_top_ll);
-        // topLayout.getBackground().setAlpha(160);
+         topLayout.getBackground().setAlpha(160);
         topCancelButton = (Button) findViewById(R.id.folder_top_cancel_btn);
         topText = (TextView) findViewById(R.id.folder_top_text);
         folderNameTextView = (TextView) findViewById(R.id.folder_name);
@@ -408,7 +409,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             num++;
                             if (num > 0) {
                                 topText.setText("已选定" + num + "个");
+                                deleteBtn.setEnabled(true);
+                                downLoadBtn.setEnabled(true);
                             } else {
+                                downLoadBtn.setEnabled(false);
+                                deleteBtn.setEnabled(false);
                                 topText.setText("");
                             }
                         } else {
@@ -420,9 +425,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             num--;
                             if (num > 0) {
                                 topText.setText("已选定" + num + "个");
+                                deleteBtn.setEnabled(true);
+                                downLoadBtn.setEnabled(true);
                             } else {
+                                downLoadBtn.setEnabled(false);
                                 topText.setText("");
-
+                                deleteBtn.setEnabled(false);
                             }
                         }
                         break;
@@ -472,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     isAllCheck = false;
                     topAllCheckButton.setText("全不选");
                     selectFolderNum = MyApplication.folderNum;
+                    topText.setText("已选定" + datas.size() + "个");
                     for (MainBean showCB : datas) {
                         showCB.setCheckBox(true);
                         isSeceltList.add(showCB);
@@ -479,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     recyclerViewAdapter.notifyDataSetChanged();
 
                 } else {
+                    topText.setText("");
                     isAllCheck = true;
                     topAllCheckButton.setText("全选");
 
@@ -495,12 +505,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     downloadFile();
                 }
+                break;
+            case R.id.folder_delete_btn:
+                uploadFileProgress = 0;
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
+                builder.setTitle("确认删除"); //设置标题
+                Log.i(TAG, "onClick: "+selectFolderNum);
+                if (selectFolderNum > 0) {
+                    builder.setMessage("将删除" + selectFolderNum + "个文件夹," + (isSeceltList.size() - selectFolderNum) + "张照片"); //设置内容
+                } else {
+                    builder.setMessage("将删除" + isSeceltList.size() + "张照片"); //设置内容
+                }
+                builder.setIcon(R.mipmap.ic_launcher);//设置图标，图片id即可
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() { //设置确定按钮
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss(); //关闭dialog
+                        deleteFolder();
+                    }
+                });
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() { //设置取消按钮
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                //参数都设置完成了，创建并显示出来
+                builder.create().show();
+                break;
+
+        }
+
+    }
+
+    /**
+     * 删除文件
+     */
+
+    public void deleteFolder() {
+        progressDialog(isSeceltList.size(), "正在删除");
+        Log.i(TAG, "deleteFolder: "+System.currentTimeMillis());
+        for (final MainBean mainBean : isSeceltList) {
+            OkHttpUtils.get().url(AllDatas.DELETE_FILE_URL).addParams("deletePath", MainActivity.pathList.get(MainActivity.pathList.size() - 1)).addParams("imagename", mainBean.getImageName()).build().execute(new StringCallback() {
+                @Override
+                public void onError(Call call, Exception e, int id) {
+                    uploadFileProgress++;
+
+                }
+
+                @Override
+                public void onResponse(String response, int id) {
+
+                    UserBean userBean = JSON.parseObject(response, UserBean.class);
+                    if (userBean.resCode.equals("40001")) {
+                      //  MainActivity.this.setResult(5, getIntent()); //让MainActivity 刷新Rec
+                       // MainActivity.this.finish();
+                    } else {
+                        Toast.makeText(MainActivity.this, "删除失败", Toast.LENGTH_SHORT).show();
+
+                    }
+                    uploadFileProgress++;
+                    mProgress.setProgress(uploadFileProgress);
+                    if (uploadFileProgress == isSeceltList.size()) {
+                       mProgress.dismiss();
+                        Toast.makeText(MainActivity.this, "删除完成", Toast.LENGTH_SHORT).show();
+                        cancledMultiselect();
+                        updataDatas(false);
+                    }
+
+                }
+            });
 
 
         }
 
     }
 
+
+    /**
+     * 下载文件
+     */
     private void downloadFile() {
         progressDialog(isSeceltList.size(), "正在下载");
         Log.i(TAG, "downloadFile: " + isSeceltList.size());
