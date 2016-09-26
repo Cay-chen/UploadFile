@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".LoginActivity">
+        <activity android:name=".LoginActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,8 +27,10 @@
         <activity
             android:configChanges="orientation|screenSize"
             android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity" />
-        <activity android:name=".PhotoActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".PhotoActivity"
+            android:configChanges="keyboardHidden|orientation"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
         <!-- 配置APP ID -->
         <meta-data
             android:name="BUGLY_APPID"

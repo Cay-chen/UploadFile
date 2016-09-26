@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -24,12 +25,12 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.File;
-import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -43,6 +44,8 @@ import uploadfile.cay.com.uploadfile.Bean.MainBean;
 import uploadfile.cay.com.uploadfile.Bean.ShowFileBean;
 import uploadfile.cay.com.uploadfile.Bean.UploadBean;
 import uploadfile.cay.com.uploadfile.Bean.UserBean;
+import uploadfile.cay.com.uploadfile.VersionUpdata.VersionUpdate;
+import uploadfile.cay.com.uploadfile.VersionUpdata.VersionUpdateManager;
 import uploadfile.cay.com.uploadfile.adapter.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -80,12 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CrashReport.setUserId(MyApplication.name);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         pathList.add(MyApplication.name);
         initViews();//初始化所有控件
         initOnCK();//初始化监听事件
         updataDatas(true);//初始化数
+        versionUpdata();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
     }
@@ -110,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createFolderButton = (LinearLayout) findViewById(R.id.create_folder_ll);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         topLayout = (RelativeLayout) findViewById(R.id.folder_top_ll);
-         topLayout.getBackground().setAlpha(160);
+        topLayout.getBackground().setAlpha(160);
         topCancelButton = (Button) findViewById(R.id.folder_top_cancel_btn);
         topText = (TextView) findViewById(R.id.folder_top_text);
         folderNameTextView = (TextView) findViewById(R.id.folder_name);
@@ -128,17 +133,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 创建文件夹
      */
     private void createFolder() {
-
-        final EditText editText = new EditText(this);
+        LayoutInflater inflater;
+        inflater = LayoutInflater.from(MainActivity.this);
+        final View view =inflater.inflate(R.layout.dialog_ed,null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("新建文件夹").setIcon(R.mipmap.icon_list_folder).setView(editText).setNegativeButton("取消", null).setPositiveButton("创建", new DialogInterface.OnClickListener() {
+        builder.setTitle("新建文件夹").setIcon(R.mipmap.icon_list_folder).setView(view).setNegativeButton("取消", null).setPositiveButton("创建", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                createFolderName = editText.getText().toString();
+                createFolderName= ((EditText) view.findViewById(R.id.dialog_item_ed)).getText().toString();
                 String path = AllDatas.CREATE_FOLDER_URL + pathList.get((pathList.size()) - 1) + "\\" + createFolderName;
                 OkHttpUtils.get().url(path).build().execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(MainActivity.this, "网络链接异常，请检查网络！", Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -150,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
             }
         });
+        builder.setCancelable(false);
         builder.show();
 
     }
@@ -163,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         OkHttpUtils.get().url(AllDatas.SHOW_FILES_URL + pathList.get(pathList.size() - 1)).build().execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
+                Toast.makeText(MainActivity.this, "网络链接异常，请检查网络！", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -298,8 +307,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectImagesPath = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("是否上传"); //设置标题
-                builder.setMessage("你选择了" + selectImagesPath.size() + "张照片"); //设置内容
-                builder.setIcon(R.mipmap.ic_launcher);//设置图标，图片id即可
+                builder.setMessage("你将上传" + selectImagesPath.size() + "张照片"); //设置内容
+                builder.setIcon(R.mipmap.warring_icon);//设置图标，图片id即可
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() { //设置确定按钮
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -315,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
                 //参数都设置完成了，创建并显示出来
+                builder.setCancelable(false);
                 builder.create().show();
             }
 
@@ -331,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void progressDialog(int maxNum, String tital) {
         mProgress = new ProgressDialog(this);
         mProgress.setMax(maxNum);
-        mProgress.setIcon(R.mipmap.ic_launcher);
+        mProgress.setIcon(R.mipmap.warring_icon);
         mProgress.setTitle(tital);
         mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgress.setButton("后台运行", new DialogInterface.OnClickListener() {
@@ -474,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.upload_file_ll:
                 uploadFileProgress = 0;
-                MultiImageSelector.create().showCamera(true).count(AllDatas.UPLOAD_FILE_MAXNUM).multi().start(MainActivity.this, AllDatas.SELECT_IMAGE_ACTIVITY_CODE);
+                MultiImageSelector.create().showCamera(true).count(AllDatas.UPLOAD_FILE_MAX_NUM).multi().start(MainActivity.this, AllDatas.SELECT_IMAGE_ACTIVITY_CODE);
                 break;
             case R.id.folder_top_cancel_btn:
                 cancledMultiselect();
@@ -516,13 +526,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 uploadFileProgress = 0;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("确认删除"); //设置标题
-                Log.i(TAG, "onClick: "+selectFolderNum);
-                if (selectFolderNum > 0) {
+                Log.i(TAG, "onClick: " + selectFolderNum);
+                if (selectFolderNum > 0&&selectFolderNum != isSeceltList.size()) {
                     builder.setMessage("将删除" + selectFolderNum + "个文件夹," + (isSeceltList.size() - selectFolderNum) + "张照片"); //设置内容
+                } else if (selectFolderNum == isSeceltList.size()) {
+                    builder.setMessage("将删除" + isSeceltList.size() + "个文件夹"); //设置内容
                 } else {
                     builder.setMessage("将删除" + isSeceltList.size() + "张照片"); //设置内容
                 }
-                builder.setIcon(R.mipmap.ic_launcher);//设置图标，图片id即可
+                builder.setIcon(R.mipmap.warring_icon);//设置图标，图片id即可
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() { //设置确定按钮
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -537,7 +549,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
                 //参数都设置完成了，创建并显示出来
+                builder.setCancelable(false);
                 builder.create().show();
+
                 break;
 
         }
@@ -550,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void deleteFolder() {
         progressDialog(isSeceltList.size(), "正在删除");
-        Log.i(TAG, "deleteFolder: "+System.currentTimeMillis());
+        Log.i(TAG, "deleteFolder: " + System.currentTimeMillis());
         for (final MainBean mainBean : isSeceltList) {
             OkHttpUtils.get().url(AllDatas.DELETE_FILE_URL).addParams("deletePath", MainActivity.pathList.get(MainActivity.pathList.size() - 1)).addParams("imagename", mainBean.getImageName()).build().execute(new StringCallback() {
                 @Override
@@ -564,8 +578,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     UserBean userBean = JSON.parseObject(response, UserBean.class);
                     if (userBean.resCode.equals("40001")) {
-                      //  MainActivity.this.setResult(5, getIntent()); //让MainActivity 刷新Rec
-                       // MainActivity.this.finish();
+                        //  MainActivity.this.setResult(5, getIntent()); //让MainActivity 刷新Rec
+                        // MainActivity.this.finish();
                     } else {
                         Toast.makeText(MainActivity.this, "删除失败", Toast.LENGTH_SHORT).show();
 
@@ -573,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     uploadFileProgress++;
                     mProgress.setProgress(uploadFileProgress);
                     if (uploadFileProgress == isSeceltList.size()) {
-                       mProgress.dismiss();
+                        mProgress.dismiss();
                         Toast.makeText(MainActivity.this, "删除完成", Toast.LENGTH_SHORT).show();
                         cancledMultiselect();
                         updataDatas(false);
@@ -657,4 +671,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
+    /**
+     * 请求版本更新的响应
+     */
+    public void responseVersionUpdate(List<VersionUpdate> responses) {
+        if (responses.size() < 1) {
+            return;
+        }
+        VersionUpdate versionUpdate = responses.get(0);
+        VersionUpdateManager update = new VersionUpdateManager(this,
+                versionUpdate.getVersion(), versionUpdate.getURLaddress());
+        // 强制更新
+        if (versionUpdate.getForcedUpdate() == 1) {
+            update.setForcedUpdate(true);
+            update.setTitle(this.getResources().getString(
+                    R.string.version_update_tips_force));
+        }
+        update.setShowResult(false);
+        update.startUpdate();
+
+    }
+
+
+    /**
+     * 版本请求数据
+     */
+    public void versionUpdata() {
+
+        OkHttpUtils.get().url(AllDatas.VERSION_UPDATA_URL).addParams("username", MyApplication.name).build().execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                UserBean userBean = JSON.parseObject(response, UserBean.class);
+
+                List<VersionUpdate> versionUpdataList = new ArrayList<VersionUpdate>();
+                VersionUpdate versionUpdate = new VersionUpdate();
+                versionUpdate.setForcedUpdate(Integer.parseInt(userBean.resMsg));
+                versionUpdate.setURLaddress(userBean.resHeadUrl);
+                versionUpdate.setVersion(Float.parseFloat(userBean.resCode));
+                versionUpdataList.add(versionUpdate);
+               /* Log.i(TAG, "更新版本号: "+userBean.resCode);
+                Log.i(TAG, "强制更新: "+userBean.resMsg);
+                Log.i(TAG, "地址: "+userBean.resHeadUrl);*/
+                responseVersionUpdate(versionUpdataList);
+
+            }
+        });
+
+    }
+
 }

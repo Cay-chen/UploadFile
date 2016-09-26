@@ -1,6 +1,7 @@
 package uploadfile.cay.com.uploadfile;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -43,6 +45,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private LinearLayout loginLayout;//登录界面
     private Button loginSingUpBtn;//切换到注册页面按钮
     private Button loginButton;//登录按钮
+    private CheckBox cb_ischeck;
+    private SharedPreferences sp;
+    private EditText loginUser;
+    private EditText loginPassword;
 
 
     @Override
@@ -52,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.sign);
         initViews();
         initOnClikListen();
+        initSp();
 
     }
 
@@ -89,6 +96,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginLayout = (LinearLayout) findViewById(R.id.login_ll);
         loginSingUpBtn = (Button) findViewById(R.id.login_sing_up_btn);
         loginButton = (Button) findViewById(R.id.login_btn);
+        cb_ischeck = (CheckBox) findViewById(R.id.login_password_cb);
+        loginUser = (EditText) findViewById(R.id.login_username_et);
+        loginPassword = (EditText) findViewById(R.id.login_password_et);
     }
 
     /**
@@ -142,7 +152,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         OkHttpUtils.post().url(AllDatas.SEND_CODE_URL).addParams("singUpMail", upMail).addParams("nikeName", upNikeName).build().execute(new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "网络链接异常，请检查网络！", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -154,6 +164,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             ((TextView) findViewById(R.id.code_mail_tv)).setText(upMail);
                             codeLayout.setVisibility(View.VISIBLE);
                             singUpLayout.setVisibility(View.GONE);
+                            singUpMail.setText("");
+                            singUpNikeName.setText("");
+                            singUpPaaword.setText("");
+                            singUpRePassword.setText("");
                             break;
                         case "10002":
                             Toast.makeText(LoginActivity.this, "该邮箱已被注册", Toast.LENGTH_SHORT).show();
@@ -189,7 +203,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 OkHttpUtils.post().url(AllDatas.SING_UP_URL).addParams("mail", upMail).addParams("password", upPassword).addParams("nikeName", upNikeName).addParams("yCode", code).build().execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "网络链接异常，请检查网络！", Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -201,6 +215,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 case "30001":
                                     successLayout.setVisibility(View.VISIBLE);
                                     codeLayout.setVisibility(View.GONE);
+                                    ((EditText) findViewById(R.id.code_et)).setText("");
                                     break;
                                 case "30002":
                                     Toast.makeText(LoginActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
@@ -259,20 +274,40 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         }
     }
+    /**
+     * 初始化SP和密码本地提取
+     */
+    private void initSp() {
+        //初始化sp
+        // 使用sharPerferences去保存数据
+        //name 会自动生成一个XML文件  mode 自己选择模式
+        sp = getSharedPreferences("password", 0);
+        //把SharedPreferences数据调出来
+        String name = sp.getString("name", "");
+        String pwd = sp.getString("pwd", "");
 
+        //把name和pwd显示到 edittext
+        loginUser.setText(name);
+        loginPassword.setText(pwd);
+        boolean result = sp.getBoolean("ischecked", false);
+        if (result) {
+            cb_ischeck.setChecked(true);
+
+        }
+    }
     /**
      * 登录逻辑
      */
     private void singIn() {
-        String username = ((EditText) findViewById(R.id.login_username_et)).getText().toString();
-        String password = ((EditText) findViewById(R.id.login_password_et)).getText().toString();
+        final String username =loginUser.getText().toString();
+        final String password =loginPassword.getText().toString();
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(LoginActivity.this, "账号或密码不能为空", Toast.LENGTH_SHORT).show();
         } else {
             OkHttpUtils.post().url(AllDatas.LOGIN_URL).addParams("password", password).addParams("username", username).build().execute(new StringCallback() {
                 @Override
                 public void onError(Call call, Exception e, int id) {
-
+                    Toast.makeText(LoginActivity.this, "网络链接异常，请检查网络！", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -287,6 +322,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 LoginActivity.this.finish();
+                                if (cb_ischeck.isChecked()) {
+                                    // 获取SP的编辑器
+                                    SharedPreferences.Editor edit = sp.edit();
+                                    edit.putString("name", username);
+                                    edit.putString("pwd", password);
+                                    //存储checkbpox的状态
+                                    edit.putBoolean("ischecked", true);
+                                    // 记得edit的提交
+                                    edit.commit();
+
+                                } else {
+                                    SharedPreferences.Editor edit = sp.edit();
+                                    edit.putString("name", "");
+                                    edit.putString("pwd", "");
+                                    //存储checkbpox的状态
+                                    edit.putBoolean("ischecked", false);
+                                    // 记得edit的提交
+                                    edit.commit();
+                                }
                                 Log.i(TAG, "userBean: resCode" + userBean.resCode);
                                 Log.i(TAG, "userBean: resHeadUrl" + userBean.resHeadUrl);
                                 Log.i(TAG, "userBean: resMsg" + userBean.resMsg);
