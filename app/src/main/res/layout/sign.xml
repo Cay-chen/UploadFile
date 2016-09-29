@@ -106,17 +106,17 @@
             android:gravity="center_vertical">
 
             <CheckBox
-                android:layout_marginLeft="10dp"
                 android:id="@+id/login_password_cb"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp" />
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="2dp"
                 android:layout_toRightOf="@+id/login_password_cb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="记住密码" />
 
             <TextView
@@ -139,6 +139,7 @@
             android:text="注册"
             android:textColor="#EF7C01"
             android:textSize="16sp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -359,14 +360,15 @@
                 android:textSize="20sp" />
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="1dp"
             android:background="#F2F2F2">
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/code_tv_code"
+                android:layout_width="80dp"
                 android:layout_height="55dp"
                 android:layout_marginLeft="15dp"
                 android:layout_weight="0.4"
@@ -377,8 +379,10 @@
 
             <EditText
                 android:id="@+id/code_et"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
+                android:layout_toLeftOf="@+id/time_send_mail"
+                android:layout_toRightOf="@+id/code_tv_code"
                 android:layout_weight="1"
                 android:background="@null"
                 android:gravity="center_vertical"
@@ -387,9 +391,22 @@
                 android:maxLength="6"
                 android:textSize="18sp" />
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/time_send_mail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/lonin_rounded_edittext"
+                android:text="发送验证码"
+                android:textColor="#ffffff" />
+
+        </RelativeLayout>
 
         <Button
+
             android:id="@+id/code_next_btn"
             android:layout_width="match_parent"
             android:layout_height="54dp"

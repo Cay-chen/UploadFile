@@ -135,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void createFolder() {
         LayoutInflater inflater;
         inflater = LayoutInflater.from(MainActivity.this);
-        final View view =inflater.inflate(R.layout.dialog_ed,null);
+        final View view = inflater.inflate(R.layout.dialog_ed, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("新建文件夹").setIcon(R.mipmap.icon_list_folder).setView(view).setNegativeButton("取消", null).setPositiveButton("创建", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                createFolderName= ((EditText) view.findViewById(R.id.dialog_item_ed)).getText().toString();
+                createFolderName = ((EditText) view.findViewById(R.id.dialog_item_ed)).getText().toString();
                 String path = AllDatas.CREATE_FOLDER_URL + pathList.get((pathList.size()) - 1) + "\\" + createFolderName;
                 OkHttpUtils.get().url(path).build().execute(new StringCallback() {
                     @Override
@@ -167,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void updataDatas(final boolean init) {
         Log.i(TAG, "最后路径: " + pathList.get(pathList.size() - 1));
+        if (pathList.size() > 1) {
+            folderNameTextView.setText(pathList.get(pathList.size() - 1));
+            folderNameTextView.setTextSize(16);
+        }
         datas.clear();//清楚之前下载的内容
         OkHttpUtils.get().url(AllDatas.SHOW_FILES_URL + pathList.get(pathList.size() - 1)).build().execute(new StringCallback() {
             @Override
@@ -212,8 +216,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 if (pathList.size() > 1) {
                     pathList.remove(pathList.size() - 1);
-                    updataDatas(false);
+                    if (pathList.size() > 1) {
+                        folderNameTextView.setText(pathList.get(pathList.size() - 1));
+                    } else {
+                        folderNameTextView.setText(MyApplication.name);
+                        folderNameTextView.setTextSize(25);
+                    }
+                        updataDatas(false);
                 } else {
+
                     exitBy2Click();
                 }
             }
@@ -406,6 +417,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
                 isSeceltList.clear();//清楚之前选中的数据
+                downLoadBtn.setEnabled(false);
+                deleteBtn.setEnabled(false);
                 return true;
             }
         });
@@ -527,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);  //先得到构造器
                 builder.setTitle("确认删除"); //设置标题
                 Log.i(TAG, "onClick: " + selectFolderNum);
-                if (selectFolderNum > 0&&selectFolderNum != isSeceltList.size()) {
+                if (selectFolderNum > 0 && selectFolderNum != isSeceltList.size()) {
                     builder.setMessage("将删除" + selectFolderNum + "个文件夹," + (isSeceltList.size() - selectFolderNum) + "张照片"); //设置内容
                 } else if (selectFolderNum == isSeceltList.size()) {
                     builder.setMessage("将删除" + isSeceltList.size() + "个文件夹"); //设置内容

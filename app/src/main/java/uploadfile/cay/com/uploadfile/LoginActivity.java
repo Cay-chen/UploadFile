@@ -21,6 +21,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 
 import okhttp3.Call;
 import uploadfile.cay.com.uploadfile.Bean.UserBean;
+import uploadfile.cay.com.uploadfile.Util.MyCountTimer;
 
 /**
  *
@@ -49,6 +50,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SharedPreferences sp;
     private EditText loginUser;
     private EditText loginPassword;
+    private Button send_time_btn;
+    private MyCountTimer aaa;
 
 
     @Override
@@ -72,6 +75,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         successBackLoginBtn.setOnClickListener(this);//成功返回登录监听
         loginSingUpBtn.setOnClickListener(this);//切换到注册页面监听
         loginButton.setOnClickListener(this);//登录按钮监听
+        send_time_btn.setOnClickListener(this);
+      //aaa = new MyCountTimer(120000, 1000, send_time_btn, R.string.app_name);
+        aaa = new MyCountTimer(61000, 1000, send_time_btn, R.drawable.lonin_rounded_edittext, R.drawable.main_activity_top_check_true);
+
     }
 
     /**
@@ -99,12 +106,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         cb_ischeck = (CheckBox) findViewById(R.id.login_password_cb);
         loginUser = (EditText) findViewById(R.id.login_username_et);
         loginPassword = (EditText) findViewById(R.id.login_password_et);
+        send_time_btn = (Button) findViewById(R.id.time_send_mail);
     }
 
     /**
      * 注册逻辑
      */
     private void singUp() {
+        singUpNext.setEnabled(false);
         upMail = singUpMail.getText().toString();
         upNikeName = singUpNikeName.getText().toString();
         upPassword = singUpPaaword.getText().toString();
@@ -113,6 +122,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (!upMail.isEmpty() && !upNikeName.isEmpty() && !upPassword.isEmpty() && !upRePassword.isEmpty()) {
             if (upPassword.equals(upRePassword)) {
                 if (upPassword.length() < 6) {
+                    singUpNext.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "密码长度为6到25", Toast.LENGTH_SHORT).show();
                 } else {
                     sendCode();
@@ -120,9 +130,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
 
             } else {
+                singUpNext.setEnabled(true);
                 Toast.makeText(LoginActivity.this, "两次密码不一样", Toast.LENGTH_SHORT).show();
             }
         } else {
+            singUpNext.setEnabled(true);
             if (upMail.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "请输入邮箱", Toast.LENGTH_SHORT).show();
             } else {
@@ -168,17 +180,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             singUpNikeName.setText("");
                             singUpPaaword.setText("");
                             singUpRePassword.setText("");
+                            aaa.start();
                             break;
                         case "10002":
+                            singUpNext.setEnabled(true);
                             Toast.makeText(LoginActivity.this, "该邮箱已被注册", Toast.LENGTH_SHORT).show();
                             break;
                         case "10004":
+                            singUpNext.setEnabled(true);
                             Toast.makeText(LoginActivity.this, "昵称已被使用", Toast.LENGTH_SHORT).show();
                             break;
                         default:
+                            singUpNext.setEnabled(true);
                             Toast.makeText(LoginActivity.this, "系统异常！", Toast.LENGTH_SHORT).show();
                     }
                 } else {
+                    singUpNext.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "系统异常！", Toast.LENGTH_SHORT).show();
                 }
 
@@ -271,7 +288,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.login_btn:
                 singIn();
                 break;
-
+            case R.id.time_send_mail:
+               // aaa.start();
+                sendCode();
+                break;
         }
     }
     /**
